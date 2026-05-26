@@ -5,19 +5,19 @@ const steps = [
     n: "01",
     icon: "🎯",
     title: "Pick your product",
-    body: "Choose stickers, cards, flyers, or a brand pack. Upload your own file if you have one.",
+    body: "Choose stickers, cards, flyers, or a brand pack (multiple brand items).",
   },
   {
     n: "02",
     icon: "🎨",
     title: "Design or upload",
-    body: "Answer 5 questions — AI generates your logo, colours, and layouts. Approve in seconds on WhatsApp.",
+    body: "Answer 5 questions — AI generates your logo, colours, and layouts, Upload your own file if you have one.",
   },
   {
     n: "03",
     icon: "🚀",
     title: "We print & deliver",
-    body: "Same-day or next-day Lagos. 2–3 days nationwide. Every update straight to your WhatsApp.",
+    body: "Same-day or next-day Lagos. 2–3 days nationwide. Get progress notifications via email, SMS or whatsapp.",
   },
 ];
 
@@ -40,7 +40,7 @@ export function HowItWorks() {
       <Stagger className="steps-grid">
         {steps.map((s) => (
           <StaggerItem key={s.n}>
-            <div className="step">
+            <div className="step min-h-full">
               <div className="step-n">{s.n}</div>
               <div className="step-icon">{s.icon}</div>
               <div className="step-title">{s.title}</div>
