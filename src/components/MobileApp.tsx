@@ -28,7 +28,7 @@ const PAST_ORDERS = [
 
 const PUSHES = [
   { icon: 'lucide:package-check', color: 'var(--teal)', title: 'Out for delivery', body: '100 stickers · arriving today', top: '11%', right: '-5%', delay: 0.5 },
-  { icon: 'lucide:check-check', color: 'var(--amber)', title: 'Proof ready', body: 'Tap to approve — 100 stickers', bottom: '13%', left: '-4%', delay: 0.9 },
+  { icon: 'lucide:repeat-2', color: 'var(--amber)', title: 'Reorder in one tap', body: '250 business cards · running low?', bottom: '13%', left: '-4%', delay: 0.9 },
 ]
 
 export function MobileApp() {

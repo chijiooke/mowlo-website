@@ -231,7 +231,9 @@ nav {
 .sec-sub { font-size: 16px; color: var(--muted); max-width: 480px; line-height: 1.65; margin-bottom: 52px; }
 
 /* ── Products: a deck that fans open under the label ────────────────────── */
-.deck-stage { position: relative; text-align: center; }
+/* clip, not hidden: it contains a card dragged past the screen edge without
+   creating a scroll container or clipping the fan vertically. */
+.deck-stage { position: relative; text-align: center; overflow-x: clip; }
 .deck-stage .sec-label { margin-bottom: 6px; }
 .deck-stage .sec-sub { margin-left: auto; margin-right: auto; }
 .sub-flag { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.18em; }
@@ -261,6 +263,11 @@ nav {
 /* Whichever card you point at comes to the front of the hand. */
 .deck-slot:hover { z-index: 30; }
 .deck-card { will-change: transform; pointer-events: auto; }
+/* Drag layer, kept separate from the pose layer above it. */
+.deck-drag { height: 100%; }
+/* The card on top of the shuffling pile can be picked up and thrown. */
+.deck-drag.grabbable { cursor: grab; touch-action: pan-y; }
+.deck-drag.grabbable:active { cursor: grabbing; }
 .deck-slot .prod-card { min-height: clamp(200px, 25vw, 262px); box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45); }
 
 .prod-card {
