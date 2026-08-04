@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { motion, useInView, useMotionValue, useReducedMotion, useTransform, type Variants } from 'framer-motion'
+import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform, type Variants } from 'framer-motion'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { Reveal } from './Reveal'
 import { MOWLO_BODY_PATH } from './MowloLogo'
@@ -90,23 +90,29 @@ const card: Variants = {
     opacity: 1,
     transition: reduce ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 22, mass: 0.8 },
   }),
-  /* Deliberately louder than the hero's arc: bigger tilt, bigger falloff, and
-     enough overshoot that the card visibly throws itself onto the pile.
-     Depth is capped rather than faded — cards past the third sit together at
-     the back, hidden by the ones in front, so nothing blinks in or out. */
-  shuffled: ({ depth, reduce }: FanPose) => {
-    const d = Math.min(depth, 3)
-    return {
-      x: `${(d % 2 ? 1 : -1) * d * 4}%`,
-      y: `${d * 6}%`,
-      rotate: (d % 2 ? 1 : -1) * d * 7,
-      scale: 1 - d * 0.07,
-      opacity: 1,
-      transition: reduce
-        ? { duration: 0 }
-        : { type: 'spring', stiffness: 150, damping: 14, mass: 1 },
-    }
-  },
+}
+
+/**
+ * Where a card sits in the shuffling pile. Passed to `animate` as a plain
+ * object rather than a variant: a variant label that never changes will not
+ * re-fire just because its `custom` did, which left a swiped card stranded
+ * until the next render happened to nudge it.
+ *
+ * Depth is capped rather than faded — cards past the third sit together at the
+ * back, hidden by the ones in front, so nothing blinks in or out.
+ */
+function shufflePose(depth: number, reduce: boolean) {
+  const d = Math.min(depth, 3)
+  return {
+    x: `${(d % 2 ? 1 : -1) * d * 4}%`,
+    y: `${d * 6}%`,
+    rotate: (d % 2 ? 1 : -1) * d * 7,
+    scale: 1 - d * 0.07,
+    opacity: 1,
+    transition: reduce
+      ? { duration: 0 }
+      : { type: 'spring' as const, stiffness: 150, damping: 14, mass: 1 },
+  }
 }
 
 export function ProductsSection() {
@@ -160,7 +166,7 @@ export function ProductsSection() {
           className={`deck-fan${shuffles ? ' shuffling' : ''}`}
           ref={fanRef}
           initial="stacked"
-          animate={shuffles ? 'shuffled' : inView || reduce ? 'fanned' : 'stacked'}
+          animate={inView || reduce ? 'fanned' : 'stacked'}
           variants={{ fanned: { transition: { staggerChildren: 0.07, delayChildren: 0.25 } } }}
         >
           {PRODUCTS.map((p, i) => {
@@ -178,6 +184,7 @@ export function ProductsSection() {
                 depth={depth}
                 z={shuffles ? PRODUCTS.length - depth : i}
                 reduce={reduce}
+                shuffling={shuffles}
                 canDrag={shuffles && depth === 0 && !reduce}
                 onSwap={() => setCycle(c => c + 1)}
                 onDragState={setDragging}
@@ -213,6 +220,8 @@ interface DeckCardProps {
   depth: number
   z: number
   reduce: boolean
+  /** The deck is a pile rather than a fan — phone widths only. */
+  shuffling: boolean
   canDrag: boolean
   onSwap: () => void
   onDragState: (dragging: boolean) => void
@@ -225,7 +234,7 @@ interface DeckCardProps {
  * elements — sharing one means every re-render re-resolves the variant and
  * yanks the card back out of your grip mid-gesture.
  */
-function DeckCard({ product: p, i, spread, depth, z, reduce, canDrag, onSwap, onDragState, onOpen }: DeckCardProps) {
+function DeckCard({ product: p, i, spread, depth, z, reduce, shuffling, canDrag, onSwap, onDragState, onOpen }: DeckCardProps) {
   const x = useMotionValue(0)
   // The card leans into the direction you pull it, the way a real one would.
   const tilt = useTransform(x, [-DRAG_LIMIT, 0, DRAG_LIMIT], [-14, 0, 14])
@@ -236,14 +245,20 @@ function DeckCard({ product: p, i, spread, depth, z, reduce, canDrag, onSwap, on
     // property, not an inline z-index, so the hover rule can still lift a card
     // over its neighbours in the fan.
     <div className="deck-slot" style={{ ['--z' as string]: String(z) }}>
-      <motion.div className="deck-card" custom={{ i, spread, depth, reduce }} variants={card}>
+      {/* In the pile the pose is passed straight to `animate`, so every swap
+          re-fires it. In the fan it inherits the variant from the deck. */}
+      <motion.div
+        className="deck-card"
+        custom={{ i, spread, depth, reduce }}
+        variants={card}
+        {...(shuffling ? { animate: shufflePose(depth, reduce) } : {})}
+      >
         <motion.div
           className={`deck-drag${canDrag ? ' grabbable' : ''}`}
           style={{ x, rotate: canDrag ? tilt : 0 }}
           // Sideways only, so the page still scrolls under your thumb. Bounded
           // so a thrown card can never push the page wider than the screen.
           drag={canDrag ? 'x' : false}
-          dragSnapToOrigin
           dragConstraints={{ left: -DRAG_LIMIT, right: DRAG_LIMIT }}
           dragElastic={0.12}
           dragMomentum={false}
@@ -253,6 +268,9 @@ function DeckCard({ product: p, i, spread, depth, z, reduce, canDrag, onSwap, on
           }}
           onDragEnd={(_, info) => {
             onDragState(false)
+            // Hand the card back to centre explicitly rather than leaving it
+            // to dragSnapToOrigin, which left it sitting where it was dropped.
+            animate(x, 0, { type: 'spring', stiffness: 320, damping: 30 })
             // Moved out of the way, or flicked — it goes to the back.
             if (Math.abs(info.offset.x) > 62 || Math.abs(info.velocity.x) > 350) onSwap()
           }}
