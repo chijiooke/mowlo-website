@@ -1,8 +1,9 @@
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { motion, useInView, useReducedMotion, type Variants } from 'framer-motion'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { Reveal } from './Reveal'
 import { MOWLO_BODY_PATH } from './MowloLogo'
 import { useWaitlist } from './WaitlistForm'
@@ -51,18 +52,23 @@ const MID = (PRODUCTS.length - 1) / 2
 /** Widest gap between neighbouring cards, as a share of one card's width. */
 const MAX_SPREAD = 62
 
+/** How often the phone-sized deck deals its top card to the back. */
+const SHUFFLE_MS = 2600
+
 interface FanPose {
   i: number
   /** Gap between neighbours, % of card width. Shrinks to fit narrow screens. */
   spread: number
+  /** Layers below the top of the shuffling deck: 0 is the card on top. */
+  depth: number
   /** When set, the hand is simply already open — no travel. */
   reduce: boolean
 }
 
 /**
- * Two poses, both measured in percentages of a card so the fan stays in
- * proportion at every width: a squared deck, and the same deck fanned open
- * like a hand of cards. Both sit behind the headline.
+ * Three poses, all measured in percentages of a card so they stay in
+ * proportion at every width: a squared deck, the same deck fanned open like a
+ * hand of cards, and — where a fan will not fit — a shuffling stack.
  */
 const card: Variants = {
   stacked: ({ i }: FanPose) => ({
@@ -75,16 +81,44 @@ const card: Variants = {
     // Squared term lifts the middle of the hand and drops the outer cards.
     y: `${(i - MID) ** 2 * spread * 0.045}%`,
     rotate: (i - MID) * spread * 0.16,
+    scale: 1,
+    opacity: 1,
     transition: reduce ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 22, mass: 0.8 },
   }),
+  /* Deliberately louder than the hero's arc: bigger tilt, bigger falloff, and
+     enough overshoot that the card visibly throws itself onto the pile.
+     Depth is capped rather than faded — cards past the third sit together at
+     the back, hidden by the ones in front, so nothing blinks in or out. */
+  shuffled: ({ depth, reduce }: FanPose) => {
+    const d = Math.min(depth, 3)
+    return {
+      x: `${(d % 2 ? 1 : -1) * d * 4}%`,
+      y: `${d * 6}%`,
+      rotate: (d % 2 ? 1 : -1) * d * 7,
+      scale: 1 - d * 0.07,
+      opacity: 1,
+      transition: reduce
+        ? { duration: 0 }
+        : { type: 'spring', stiffness: 150, damping: 14, mass: 1 },
+    }
+  },
 }
 
 export function ProductsSection() {
   const fanRef = useRef<HTMLDivElement>(null)
   const [spread, setSpread] = useState(MAX_SPREAD)
+  const [cycle, setCycle] = useState(0)
   const reduce = !!useReducedMotion()
   const openWaitlist = useWaitlist()
   const inView = useInView(fanRef, { once: true, margin: '-120px' })
+  // A six-card fan has nowhere to open on a phone, so it shuffles instead.
+  const shuffles = useMediaQuery('(max-width: 640px)')
+
+  useEffect(() => {
+    if (!shuffles || reduce || !inView) return
+    const tick = setInterval(() => setCycle(c => c + 1), SHUFFLE_MS)
+    return () => clearInterval(tick)
+  }, [shuffles, reduce, inView])
 
   // Open the hand only as wide as the section allows, so the outer cards never
   // run off a phone screen. Re-fits whenever the stage resizes.
@@ -115,19 +149,24 @@ export function ProductsSection() {
 
       <div className="deck-wrap">
         <motion.div
-          className="deck-fan"
+          className={`deck-fan${shuffles ? ' shuffling' : ''}`}
           ref={fanRef}
           initial="stacked"
-          animate={inView || reduce ? 'fanned' : 'stacked'}
+          animate={shuffles ? 'shuffled' : inView || reduce ? 'fanned' : 'stacked'}
           variants={{ fanned: { transition: { staggerChildren: 0.07, delayChildren: 0.25 } } }}
         >
-          {PRODUCTS.map((p, i) => (
+          {PRODUCTS.map((p, i) => {
+            // Each tick moves the top card to the bottom of the pile.
+            const depth = shuffles ? (i + cycle) % PRODUCTS.length : 0
+            const z = shuffles ? PRODUCTS.length - depth : i
+
+            return (
             // The slot centres every card on one point; the motion layer
             // inside it owns the deck-to-fan transform.
             // Resting depth is a custom property, not an inline z-index, so
             // the hover rule can lift the card over its neighbours.
-            <div key={p.name} className="deck-slot" style={{ ['--z' as string]: String(i) }}>
-              <motion.div className="deck-card" custom={{ i, spread, reduce }} variants={card}>
+            <div key={p.name} className="deck-slot" style={{ ['--z' as string]: String(z) }}>
+              <motion.div className="deck-card" custom={{ i, spread, depth, reduce }} variants={card}>
                 <button
                   type="button"
                   className="prod-card"
@@ -146,7 +185,8 @@ export function ProductsSection() {
                 </button>
               </motion.div>
             </div>
-          ))}
+            )
+          })}
         </motion.div>
       </div>
 

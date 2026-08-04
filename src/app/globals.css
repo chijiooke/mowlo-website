@@ -135,15 +135,6 @@ nav {
 .hero-left { width: 52%; position: relative; z-index: 5; }
 .hero-right { width: 48%; height: 660px; position: relative; z-index: 5; perspective: 1100px; }
 
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px;
-  border-radius: 100px; border: 1px solid rgba(245, 166, 35, 0.25);
-  background: rgba(245, 166, 35, 0.08); font-size: 13px; font-weight: 500;
-  color: var(--amber); margin-bottom: 26px;
-}
-.badge-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 10px var(--amber); animation: pulse 1.6s ease-in-out infinite; }
-.flag-emoji { font-size: 15px; line-height: 1; }
-
 .hero h1 {
   font-family: var(--display); font-size: clamp(52px, 8.4vw, 116px); font-weight: 800;
   letter-spacing: -0.045em; line-height: 0.94; color: var(--text); margin-bottom: 26px;
@@ -151,9 +142,26 @@ nav {
 .hero h1 .hi { color: var(--amber); }
 .hero p { font-size: clamp(16px, 1.8vw, 20px); color: var(--muted); max-width: 500px; line-height: 1.7; margin-bottom: 38px; }
 .hero-btns { display: flex; gap: 13px; flex-wrap: wrap; margin-bottom: 52px; }
-.hero-stats { display: flex; gap: 36px; }
-.hstat-val { display: block; font-family: var(--display); font-size: clamp(34px, 4vw, 48px); font-weight: 800; letter-spacing: -0.04em; color: var(--text); }
-.hstat-lbl { font-size: 13px; color: var(--muted); }
+/* Claims, not figures — one line each, so nothing has to stand alone as a
+   headline word. Auto-fit drops them to one column when the space runs out. */
+.hero-proof {
+  list-style: none;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+  gap: 14px 20px; max-width: 580px;
+}
+.hproof {
+  --pc: var(--amber);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.hproof-icon {
+  width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--pc);
+  background: color-mix(in srgb, var(--pc) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pc) 30%, transparent);
+}
+
 
 /* Hero card cluster */
 .card-cluster { position: relative; width: 100%; height: 100%; }
@@ -763,7 +771,6 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
 .fc { font-size: 12px; color: var(--muted); }
 
 /* ── Keyframes ──────────────────────────────────────────────────────────── */
-@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .6; transform: scale(1.4); } }
 @keyframes floatArc { 0%, 100% { transform: translateY(-48%); } 50% { transform: translateY(calc(-48% - 18px)); } }
 @keyframes floatMascot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -782,8 +789,10 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
   /* The floating pushes swing in over the phone once the stage narrows. */
   .push { display: none; }
   .hero { flex-direction: column; gap: 70px; padding-top: 110px; }
-  .hero-left, .hero-right { width: 100%; }
-  .hero-right { height: 520px; }
+  .hero-left { width: 100%; }
+  /* The card arc is a desktop device — the Products deck carries the cards on
+     a phone, and shuffling them in two places at once is noise. */
+  .hero-right { display: none; }
   .nav-links, .nav-right .btn-g { display: none; }
   .nav-burger { display: flex; }
   .step { grid-template-columns: 1fr; gap: 8px; padding: 40px 0; }
@@ -801,8 +810,14 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
   /* One field per row once the panel is narrow. */
   .wl-row.col-6 { grid-column: span 12; }
 }
+@media (max-width: 640px) {
+  /* Shuffling rather than fanning, so each card can be far bigger. */
+  .deck-fan.shuffling .deck-slot { width: min(76vw, 320px); }
+  .deck-fan.shuffling .prod-card { min-height: 246px; }
+  .deck-wrap { min-height: 344px; }
+}
 @media (max-width: 520px) {
-  .hero-stats { gap: 22px; }
+  .hero-proof { gap: 12px; }
   /* Resize rather than scale — a transform leaves the old box reserved. */
   .phone { width: 244px; height: 492px; border-radius: 41px; padding: 10px; }
   .phone-screen { border-radius: 32px; }

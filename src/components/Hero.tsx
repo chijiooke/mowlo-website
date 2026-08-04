@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Icon } from '@iconify/react'
 import { MowloLogo } from './MowloLogo'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { useWaitlist } from './WaitlistForm'
@@ -15,6 +16,13 @@ const WORDS = [
 
 /** Arc rotation for the back / middle / front card positions. */
 const ARC_ANGLES = [-26, -9, 10]
+
+/** Three claims under the buttons — one line each, no stray words. */
+const PROOF = [
+  { icon: 'lucide:zap', color: 'var(--amber)', text: 'Sharp sharp delivery' },
+  { icon: 'lucide:circle-slash', color: 'var(--teal)', text: 'No minimum order' },
+  { icon: 'lucide:wand-sparkles', color: 'var(--purple)', text: 'AI designer on tap' },
+]
 
 const CARDS = [
   {
@@ -91,13 +99,6 @@ export function Hero() {
 
       {/* ── Left: the pitch ── */}
       <div className="hero-left">
-        <motion.div className="hero-badge" {...rise(0.05)}>
-          <span className="badge-pulse" />
-          <span className="flag-emoji" aria-hidden="true">🇳🇬</span>
-          <span className="flag-emoji" aria-hidden="true">🇬🇭</span>
-          Built for Nigerian &amp; Ghanaian business
-        </motion.div>
-
         <motion.h1 {...rise(0.15)}>
           Your{' '}
           <AnimatePresence mode="wait">
@@ -136,18 +137,16 @@ export function Hero() {
           </a>
         </motion.div>
 
-        <motion.div className="hero-stats" {...rise(0.45)}>
-          {[
-            { val: '24hrs', lbl: 'Lagos delivery' },
-            { val: '25', lbl: 'minimum order' },
-            { val: 'AI', lbl: 'instant brand kit' },
-          ].map(s => (
-            <div key={s.lbl} className="hstat">
-              <span className="hstat-val">{s.val}</span>
-              <span className="hstat-lbl">{s.lbl}</span>
-            </div>
+        <motion.ul className="hero-proof" {...rise(0.45)}>
+          {PROOF.map(p => (
+            <li key={p.text} className="hproof" style={{ ['--pc' as string]: p.color }}>
+              <span className="hproof-icon">
+                <Icon icon={p.icon} width={17} />
+              </span>
+              {p.text}
+            </li>
           ))}
-        </motion.div>
+        </motion.ul>
       </div>
 
       {/* ── Right: the card arc ── */}
