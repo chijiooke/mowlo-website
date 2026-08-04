@@ -2,14 +2,11 @@ import type { Metadata } from 'next'
 import { Nav } from '@/components/Nav'
 import { Hero } from '@/components/Hero'
 import { TrustBar } from '@/components/TrustBar'
-import { ValueSection } from '@/components/ValueSection'
-import { ProductsSection } from '@/components/ProductsSection'
-import { PhotoStrip } from '@/components/PhotoStrip'
-import { BrandPacks } from '@/components/BrandPacks'
 import { HowItWorks } from '@/components/HowItWorks'
-import { WhatsAppSection } from '@/components/WhatsAppSection'
+import { ProductsSection } from '@/components/ProductsSection'
+import { BrandPacks } from '@/components/BrandPacks'
+import { MobileApp } from '@/components/MobileApp'
 import { Testimonials } from '@/components/Testimonials'
-import { PopupSection } from '@/components/PopupSection'
 import { FinalCTA } from '@/components/FinalCTA'
 import { Footer } from '@/components/Footer'
 
@@ -23,14 +20,11 @@ export default function HomePage() {
       <Nav />
       <Hero />
       <TrustBar />
-      <ValueSection />
-      <ProductsSection />
-      <PhotoStrip />
-      <BrandPacks />
       <HowItWorks />
-      <WhatsAppSection />
+      <ProductsSection />
+      <BrandPacks />
+      <MobileApp />
       <Testimonials />
-      <PopupSection />
       <FinalCTA />
       <Footer />
     </>

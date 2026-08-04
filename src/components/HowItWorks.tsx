@@ -1,54 +1,72 @@
-import { Reveal, Stagger, StaggerItem } from "./Reveal";
+import { ColorSplitText } from './ColorSplitText'
+import { Reveal } from './Reveal'
 
-const steps = [
+/**
+ * Three steps, oversized numerals. This section absorbs the AI brand-kit and
+ * proofing stories that previously had sections of their own.
+ */
+const STEPS = [
   {
-    n: "01",
-    icon: "🎯",
-    title: "Pick your product",
-    body: "Choose stickers, cards, flyers, or a brand pack (multiple brand items).",
+    n: '01',
+    title: 'Pick your product',
+    body: 'Stickers, business cards, flyers, thank-you cards — or a full Brand Pack in one order. Order 25 or 500; there is no minimum that eats your profit.',
+    tags: ['Stickers', 'Cards', 'Flyers', 'Brand Packs'],
   },
   {
-    n: "02",
-    icon: "🎨",
-    title: "Design or upload",
-    body: "Answer 5 questions — AI generates your logo, colours, and layouts, Upload your own file if you have one.",
+    n: '02',
+    title: 'Answer 5 questions',
+    body: 'That is the whole brief. You get a logo, a colour palette and print-ready layouts in minutes — no designer, no trip to Computer Village. Already have a file? Upload it instead.',
+    tags: ['AI brand kit', 'Saved brand profile', 'Or upload your own'],
   },
   {
-    n: "03",
-    icon: "🚀",
-    title: "We print & deliver",
-    body: "Same-day or next-day Lagos. 2–3 days nationwide. Get progress notifications via email, SMS or whatsapp.",
+    n: '03',
+    title: 'Approve your proof',
+    body: 'Your proof is ready in minutes — approve it with one tap and we go straight to print. Then we deliver: 24hrs in Lagos, 2–3 days across Nigeria and Ghana, with status the whole way.',
+    tags: ['One-tap proofing', '24hr Lagos', 'Delivery tracking'],
   },
-];
+]
 
 export function HowItWorks() {
   return (
-    <div id="how" className="section">
+    <section id="how" className="section">
       <Reveal>
         <span className="sec-label">How it works</span>
       </Reveal>
       <Reveal delay={0.05}>
         <h2 className="sec-title">
-          Simple from start
+          Three steps.
           <br />
-          to <span className="text-amber-400">delivery.</span>
+          <ColorSplitText text="No wahala." delay={0.15} />
         </h2>
       </Reveal>
       <Reveal delay={0.1}>
-        <p className="sec-sub">Three steps and you&apos;re done. No wahala.</p>
+        <p className="sec-sub">
+          A three-day, four-person errand collapsed into a phone flow.
+        </p>
       </Reveal>
-      <Stagger className="steps-grid">
-        {steps.map((s) => (
-          <StaggerItem key={s.n}>
-            <div className="step min-h-full">
-              <div className="step-n">{s.n}</div>
-              <div className="step-icon">{s.icon}</div>
-              <div className="step-title">{s.title}</div>
-              <div className="step-body">{s.body}</div>
+
+      <div className="steps">
+        {STEPS.map((s, i) => (
+          <Reveal key={s.n} delay={i * 0.06}>
+            <div className="step">
+              <div className="step-n" aria-hidden="true">
+                {s.n}
+              </div>
+              <div>
+                <h3 className="step-title">{s.title}</h3>
+                <p className="step-body">{s.body}</p>
+                <div className="step-tags">
+                  {s.tags.map(t => (
+                    <span key={t} className="step-tag">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
-          </StaggerItem>
+          </Reveal>
         ))}
-      </Stagger>
-    </div>
-  );
+      </div>
+    </section>
+  )
 }

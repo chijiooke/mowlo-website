@@ -1,129 +1,168 @@
-import { Reveal, Stagger, StaggerItem } from './Reveal'
+'use client'
 
-function BlobAmber() {
+import { useLayoutEffect, useRef, useState } from 'react'
+import { Icon } from '@iconify/react'
+import { motion, useInView, useReducedMotion, type Variants } from 'framer-motion'
+import { Reveal } from './Reveal'
+import { MOWLO_BODY_PATH } from './MowloLogo'
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
+
+/**
+ * The mascot, silhouetted into a product card. Six hand-drawn variants used to
+ * live here — they are one component now, driven by the card's face colour,
+ * and they reuse the real logo silhouette so the mark never drifts.
+ */
+function Blob({ face, deco }: { face: string; deco?: React.ReactNode }) {
   return (
-    <svg className="card-blob-c" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 10C82 8 100 20 104 40C108 60 98 82 78 94C58 106 34 100 20 86C6 72 8 48 18 34C28 20 38 12 60 10Z" fill="rgba(0,0,0,0.2)" />
-      <circle cx="43" cy="48" r="9" fill="white" opacity="0.95" /><circle cx="67" cy="48" r="9" fill="white" opacity="0.95" />
-      <circle cx="44" cy="47" r="4.5" fill="#0E0E0F" /><circle cx="68" cy="47" r="4.5" fill="#0E0E0F" />
-      <circle cx="46" cy="45" r="1.8" fill="white" /><circle cx="70" cy="45" r="1.8" fill="white" />
-      <path d="M41 64Q55 74 69 64" stroke="#0E0E0F" strokeWidth="3" strokeLinecap="round" fill="none" />
+    <svg className="card-blob-c" viewBox="0 0 80 80" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d={MOWLO_BODY_PATH} fill="rgba(0,0,0,0.2)" />
+      {deco}
+      <circle cx="25.92" cy="35.86" r="11.63" fill="#FFFFFF" opacity="0.95" />
+      <circle cx="52.07" cy="35.86" r="11.63" fill="#FFFFFF" opacity="0.95" />
+      <circle cx="26.09" cy="36.05" r="6.18" fill={face} />
+      <circle cx="52.13" cy="36.05" r="6.18" fill={face} />
+      <circle cx="28.74" cy="33.30" r="1.39" fill="#FFFFFF" />
+      <circle cx="54.78" cy="33.30" r="1.39" fill="#FFFFFF" />
+      <path d="M26.48 54.58Q38.61 65.26 50.74 54.58" stroke={face} strokeWidth="2.6" strokeLinecap="round" fill="none" />
     </svg>
   )
 }
-function BlobTeal() {
-  return (
-    <svg className="card-blob-c" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 8C88 8 108 28 108 56C108 84 88 108 60 108C32 108 12 86 12 58C12 30 32 8 60 8Z" fill="rgba(0,0,0,0.18)" />
-      <path d="M92 20C100 10 116 10 114 20" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-      <circle cx="44" cy="50" r="9" fill="white" opacity="0.95" /><circle cx="74" cy="50" r="9" fill="white" opacity="0.95" />
-      <circle cx="45" cy="49" r="4.5" fill="#0a5248" /><circle cx="75" cy="49" r="4.5" fill="#0a5248" />
-      <circle cx="47" cy="47" r="1.8" fill="white" /><circle cx="77" cy="47" r="1.8" fill="white" />
-      <path d="M42 66Q59 77 76 66" stroke="#0a5248" strokeWidth="3" strokeLinecap="round" fill="none" />
-    </svg>
-  )
+
+const sparkle = (
+  <>
+    <path d="M18 12L14 3L26 7" stroke="rgba(255,255,255,0.6)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <path d="M62 10L70 1L59 6" stroke="rgba(255,255,255,0.6)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+  </>
+)
+const antenna = <path d="M63 12C71 3 82 4 80 13" stroke="rgba(255,255,255,0.5)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+const heart = <path d="M36 26C32 21 25 23 25 29C25 34 31 38 36 43C41 38 47 34 47 29C47 23 40 21 36 26Z" fill="rgba(255,255,255,0.35)" />
+
+const PRODUCTS = [
+  { name: 'Stickers',        spec: 'Round · Square · Die-cut',   price: 'From ₦8,500',  bg: '#F5A623', face: '#0E0E0F' },
+  { name: 'Business Cards',  spec: '85×55mm · Matte or Gloss',   price: 'From ₦12,800', bg: '#1FB89E', face: '#0a5248', deco: antenna },
+  { name: 'Flyers',          spec: 'A5 · A4 · DL',               price: 'From ₦6,000',  bg: '#E8527A', face: '#6b1530' },
+  { name: 'Tee Shirts',      spec: 'S–XXL · DTF print',          price: 'From ₦14,500', bg: '#7C5CBF', face: '#2d1b69', deco: sparkle, light: true },
+  { name: 'Thank-You Cards', spec: 'A6 · custom size',           price: 'From ₦5,000',  bg: '#2A9FD6', face: '#0b4a6b', deco: heart },
+  { name: 'Branded Bags',    spec: 'Paper & shopping',           price: 'Coming soon',  bg: '#8DB82B', face: '#3d5c0a', soon: true },
+]
+
+/** Middle of the deck — the card the fan opens around. */
+const MID = (PRODUCTS.length - 1) / 2
+/** Widest gap between neighbouring cards, as a share of one card's width. */
+const MAX_SPREAD = 62
+
+interface FanPose {
+  i: number
+  /** Gap between neighbours, % of card width. Shrinks to fit narrow screens. */
+  spread: number
+  /** When set, the hand is simply already open — no travel. */
+  reduce: boolean
 }
-function BlobPink() {
-  return (
-    <svg className="card-blob-c" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 12C82 8 102 22 106 44C110 66 100 88 82 100C64 114 38 114 22 100C6 86 6 62 14 44C22 26 38 16 60 12Z" fill="rgba(0,0,0,0.18)" />
-      <circle cx="38" cy="14" r="8" fill="#C03060" /><circle cx="80" cy="12" r="8" fill="#C03060" />
-      <circle cx="43" cy="48" r="9" fill="white" opacity="0.95" /><circle cx="73" cy="48" r="9" fill="white" opacity="0.95" />
-      <circle cx="44" cy="47" r="4.5" fill="#6b1530" /><circle cx="74" cy="47" r="4.5" fill="#6b1530" />
-      <circle cx="46" cy="45" r="1.8" fill="white" /><circle cx="76" cy="45" r="1.8" fill="white" />
-      <path d="M42 64Q58 75 74 64" stroke="#6b1530" strokeWidth="3" strokeLinecap="round" fill="none" />
-    </svg>
-  )
-}
-function BlobPurple() {
-  return (
-    <svg className="card-blob-c" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 8C82 4 102 18 106 40C110 62 100 84 80 96C60 108 36 106 20 92C4 78 4 54 16 38C28 22 38 12 60 8Z" fill="rgba(0,0,0,0.2)" />
-      <path d="M28 16L22 6L34 10" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d="M90 12L96 2L86 8" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="43" cy="48" r="9" fill="white" opacity="0.95" /><circle cx="73" cy="48" r="9" fill="white" opacity="0.95" />
-      <circle cx="44" cy="47" r="4.5" fill="#2d1b69" /><circle cx="74" cy="47" r="4.5" fill="#2d1b69" />
-      <circle cx="46" cy="45" r="1.8" fill="white" /><circle cx="76" cy="45" r="1.8" fill="white" />
-      <path d="M42 64Q58 74 74 64" stroke="#2d1b69" strokeWidth="3" strokeLinecap="round" fill="none" />
-    </svg>
-  )
-}
-function BlobSky() {
-  return (
-    <svg className="card-blob-c" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 10C84 8 102 22 106 44C110 66 98 88 78 98C58 108 32 102 18 86C4 70 6 46 18 30C30 14 36 12 60 10Z" fill="rgba(0,0,0,0.18)" />
-      <path d="M55 32C51 27 44 29 44 35C44 40 50 44 55 49C60 44 66 40 66 35C66 29 59 27 55 32Z" fill="rgba(255,255,255,0.4)" />
-      <circle cx="43" cy="52" r="9" fill="white" opacity="0.95" /><circle cx="71" cy="52" r="9" fill="white" opacity="0.95" />
-      <circle cx="44" cy="51" r="4.5" fill="#0b4a6b" /><circle cx="72" cy="51" r="4.5" fill="#0b4a6b" />
-      <circle cx="46" cy="49" r="1.8" fill="white" /><circle cx="74" cy="49" r="1.8" fill="white" />
-      <path d="M41 68Q57 78 73 68" stroke="#0b4a6b" strokeWidth="3" strokeLinecap="round" fill="none" />
-    </svg>
-  )
-}
-function BlobLime() {
-  return (
-    <svg className="card-blob-c" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
-      <path d="M60 12C80 8 100 22 104 44C108 66 98 88 78 100C58 112 34 108 20 94C6 80 6 56 16 38C26 20 40 16 60 12Z" fill="rgba(0,0,0,0.18)" />
-      <path d="M40 14C36 6 28 4 26 10" stroke="#3d5c0a" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <path d="M76 12C80 4 88 4 90 10" stroke="#3d5c0a" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <path d="M49 30L49 22Q58 18 67 22L67 30" stroke="rgba(0,0,0,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="43" cy="50" r="9" fill="white" opacity="0.95" /><circle cx="73" cy="50" r="9" fill="white" opacity="0.95" />
-      <circle cx="44" cy="49" r="4.5" fill="#3d5c0a" /><circle cx="74" cy="49" r="4.5" fill="#3d5c0a" />
-      <circle cx="46" cy="47" r="1.8" fill="white" /><circle cx="76" cy="47" r="1.8" fill="white" />
-      <path d="M42 66Q58 76 74 66" stroke="#3d5c0a" strokeWidth="3" strokeLinecap="round" fill="none" />
-    </svg>
-  )
+
+/**
+ * Two poses, both measured in percentages of a card so the fan stays in
+ * proportion at every width: a squared deck, and the same deck fanned open
+ * like a hand of cards. Both sit behind the headline.
+ */
+const card: Variants = {
+  stacked: ({ i }: FanPose) => ({
+    x: '0%',
+    y: '0%',
+    rotate: (i - MID) * 1.8,
+  }),
+  fanned: ({ i, spread, reduce }: FanPose) => ({
+    x: `${(i - MID) * spread}%`,
+    // Squared term lifts the middle of the hand and drops the outer cards.
+    y: `${(i - MID) ** 2 * spread * 0.045}%`,
+    rotate: (i - MID) * spread * 0.16,
+    transition: reduce ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 22, mass: 0.8 },
+  }),
 }
 
 export function ProductsSection() {
-  return (
-    <div id="products" className="section">
-      <Reveal><span className="sec-label">Products</span></Reveal>
-      <Reveal delay={0.05}><h2 className="sec-title">Everything you need to<br />show up properly</h2></Reveal>
-      <Reveal delay={0.1}><p className="sec-sub">Designed, printed, and delivered — for every hustle in Nigeria and Ghana.</p></Reveal>
+  const fanRef = useRef<HTMLDivElement>(null)
+  const [spread, setSpread] = useState(MAX_SPREAD)
+  const reduce = !!useReducedMotion()
+  const inView = useInView(fanRef, { once: true, margin: '-120px' })
 
-      <Stagger className="prod-grid">
-        <StaggerItem>
-          <div className="prod-card" style={{ background: '#F5A623' }}>
-            <div><div className="card-name">Stickers</div><div className="card-spec">Round · Square · Die-cut</div><div className="card-p">From ₦8,500</div></div>
-            <BlobAmber />
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="prod-card" style={{ background: '#1FB89E' }}>
-            <div><div className="card-name">Business Cards</div><div className="card-spec">85×55mm · Matte or Gloss</div><div className="card-p">From ₦12,800</div></div>
-            <BlobTeal />
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="prod-card" style={{ background: '#E8527A' }}>
-            <div><div className="card-name">Flyers</div><div className="card-spec">A5 · A4 · DL</div><div className="card-p">From ₦6,000</div></div>
-            <BlobPink />
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="prod-card" style={{ background: '#7C5CBF' }}>
-            <div>
-              <div className="card-name" style={{ color: 'rgba(255,255,255,0.9)' }}>Brand Packs</div>
-              <div className="card-spec" style={{ color: 'rgba(255,255,255,0.5)' }}>Cards · Stickers · Flyers</div>
-              <div className="card-p" style={{ color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.15)' }}>From ₦18,500</div>
+  // Open the hand only as wide as the section allows, so the outer cards never
+  // run off a phone screen. Re-fits whenever the stage resizes.
+  useLayoutEffect(() => {
+    const fan = fanRef.current
+    const slot = fan?.firstElementChild as HTMLElement | null
+    if (!fan || !slot) return
+
+    const fit = () => {
+      const slotWidth = slot.offsetWidth
+      if (!slotWidth) return
+      // The 0.92 leaves room for the tilt of the outermost cards.
+      const roomPerStep = (fan.offsetWidth * 0.92 - slotWidth) / 2 / MID
+      setSpread(Math.max(16, Math.min(MAX_SPREAD, (roomPerStep / slotWidth) * 100)))
+    }
+
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(fan)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <section id="products" className="section deck-stage">
+      <Reveal className="deck-head">
+        <span className="sec-label">Products</span>
+      </Reveal>
+
+      <div className="deck-wrap">
+        <motion.div
+          className="deck-fan"
+          ref={fanRef}
+          initial="stacked"
+          animate={inView || reduce ? 'fanned' : 'stacked'}
+          variants={{ fanned: { transition: { staggerChildren: 0.07, delayChildren: 0.25 } } }}
+        >
+          {PRODUCTS.map((p, i) => (
+            // The slot centres every card on one point; the motion layer
+            // inside it owns the deck-to-fan transform.
+            // Resting depth is a custom property, not an inline z-index, so
+            // the hover rule can lift the card over its neighbours.
+            <div key={p.name} className="deck-slot" style={{ ['--z' as string]: String(i) }}>
+              <motion.div className="deck-card" custom={{ i, spread, reduce }} variants={card}>
+                <a
+                  href={p.soon ? '/partners' : `${APP_URL}/auth/register`}
+                  className="prod-card"
+                  style={{
+                    ['--bg' as string]: p.bg,
+                    ...(p.light ? { ['--fg' as string]: 'rgba(255,255,255,0.92)' } : {}),
+                  }}
+                >
+                  <div>
+                    <div className="card-name">{p.name}</div>
+                    <div className="card-spec">{p.spec}</div>
+                    <div className={`card-p${p.soon ? ' cs' : ''}`}>{p.price}</div>
+                  </div>
+                  <Blob face={p.face} deco={p.deco} />
+                </a>
+              </motion.div>
             </div>
-            <BlobPurple />
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="prod-card" style={{ background: '#2A9FD6' }}>
-            <div><div className="card-name">Thank-You Cards</div><div className="card-spec">A6 · custom size</div><div className="card-p">From ₦5,000</div></div>
-            <BlobSky />
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="prod-card" style={{ background: '#8DB82B' }}>
-            <div><div className="card-name">Branded Bags</div><div className="card-spec">Paper &amp; shopping</div><div className="card-p cs">Coming soon</div></div>
-            <BlobLime />
-          </div>
-        </StaggerItem>
-      </Stagger>
-    </div>
+          ))}
+        </motion.div>
+      </div>
+
+      <Reveal delay={0.05} className="deck-head">
+        <h2 className="sec-title sec-title-xl">
+          Show up
+          <br />
+          properly.
+        </h2>
+      </Reveal>
+      <Reveal delay={0.1} className="deck-head">
+        <p className="sec-sub">
+          Designed, printed and delivered — for every hustle in Nigeria{' '}
+          <Icon icon="circle-flags:ng" className="sub-flag" aria-hidden="true" /> and Ghana{' '}
+          <Icon icon="circle-flags:gh" className="sub-flag" aria-hidden="true" />.
+        </p>
+      </Reveal>
+    </section>
   )
 }
