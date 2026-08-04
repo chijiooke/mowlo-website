@@ -5,15 +5,15 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
 import { MowloLogo } from './MowloLogo'
+import { WaitlistCTA } from './WaitlistForm'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
-
+/* Gallery and Print partners are hidden from the nav for now — the pages are
+   still reachable by URL and from the footer. */
 const LINKS = [
   { href: '/#products', label: 'Products' },
   { href: '/#packs', label: 'Brand Packs' },
   { href: '/#how', label: 'How it works' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/partners', label: 'Print partners' },
+  { href: '/#app', label: 'Mobile app' },
 ]
 
 export function Nav() {
@@ -36,12 +36,7 @@ export function Nav() {
         </div>
 
         <div className="nav-right">
-          <a href={`${APP_URL}/auth/login`} className="btn-g">
-            Sign in
-          </a>
-          <a href={`${APP_URL}/auth/register`} className="btn-a">
-            Get started
-          </a>
+          <WaitlistCTA className="btn-a" label="Join waitlist" source="nav" />
           <button
             type="button"
             className="nav-burger"
@@ -68,9 +63,7 @@ export function Nav() {
                 {l.label}
               </Link>
             ))}
-            <a href={`${APP_URL}/auth/register`} className="btn-a">
-              Get started →
-            </a>
+            <WaitlistCTA className="btn-a" label="Join waitlist →" source="nav-drawer" />
           </motion.div>
         )}
       </AnimatePresence>

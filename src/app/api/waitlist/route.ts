@@ -6,14 +6,50 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN, fetch: fetch as neve
 
 const DATABASE_ID = process.env.NOTION_WAITLIST_DATABASE_ID
 
-/** POST /api/waitlist — capture a phone number for the mobile app launch. */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/** Local number length differs by market, so the dial code drives validation. */
+const COUNTRIES: Record<string, { name: string; dial: string; digits: number }> = {
+  NG: { name: 'Nigeria', dial: '+234', digits: 10 },
+  GH: { name: 'Ghana', dial: '+233', digits: 9 },
+}
+
+/** POST /api/waitlist — capture a signup for the mobile app launch. */
 export async function POST(req: NextRequest) {
   try {
-    const { whatsapp, source } = await req.json()
+    const { firstName, lastName, email, country, phone, location, source } = await req.json()
 
-    if (typeof whatsapp !== 'string' || !/^\d{10}$/.test(whatsapp)) {
-      return NextResponse.json({ error: 'A valid 10-digit WhatsApp number is required' }, { status: 400 })
+    const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
+    const first = str(firstName)
+    const last = str(lastName)
+    const mail = str(email)
+    const tel = str(phone)
+    const city = str(location)
+    const market = COUNTRIES[str(country)]
+
+    if (first.length < 2) {
+      return NextResponse.json({ error: 'A first name is required' }, { status: 400 })
     }
+    if (last.length < 2) {
+      return NextResponse.json({ error: 'A last name is required' }, { status: 400 })
+    }
+    if (!EMAIL.test(mail)) {
+      return NextResponse.json({ error: 'A valid email is required' }, { status: 400 })
+    }
+    if (!market) {
+      return NextResponse.json({ error: 'Select a country we deliver to' }, { status: 400 })
+    }
+    if (!new RegExp(`^\\d{${market.digits}}$`).test(tel)) {
+      return NextResponse.json(
+        { error: `A valid ${market.digits}-digit ${market.name} phone number is required` },
+        { status: 400 },
+      )
+    }
+    if (city.length < 2) {
+      return NextResponse.json({ error: 'A city is required' }, { status: 400 })
+    }
+
+    const name = `${first} ${last}`
 
     if (!DATABASE_ID) {
       // Not configured yet — don't fail the visitor, but make it visible in logs.
@@ -24,7 +60,11 @@ export async function POST(req: NextRequest) {
     await notion.pages.create({
       parent: { database_id: DATABASE_ID },
       properties: {
-        WhatsApp: { title: [{ text: { content: `+234${whatsapp}` } }] },
+        Name: { title: [{ text: { content: name } }] },
+        Email: { email: mail },
+        Phone: { phone_number: `${market.dial}${tel}` },
+        Country: { select: { name: market.name } },
+        Location: { rich_text: [{ text: { content: city } }] },
         Source: { select: { name: typeof source === 'string' ? source : 'mobile-app' } },
         'Submitted At': { date: { start: new Date().toISOString() } },
       },

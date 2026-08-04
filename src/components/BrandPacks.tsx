@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import { Reveal } from './Reveal'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
+import { WaitlistCTA } from './WaitlistForm'
 
 /**
  * One card, one message: printing together costs less than printing one thing
@@ -11,7 +10,7 @@ const BUNDLE = {
   eyebrow: 'Curated bundle',
   name: 'Order it all together, pay less.',
   note: 'We put the things every small business actually prints into one curated bundle. Order them together and the whole run costs less than buying each piece on its own.',
-  save: '52%',
+  save: '23%',
   items: [
     'Business cards',
     'Product stickers',
@@ -76,9 +75,7 @@ export function BrandPacks() {
                 ))}
               </ul>
 
-              <a href={`${APP_URL}/auth/register`} className="pack-btn">
-                Order a bundle →
-              </a>
+              <WaitlistCTA className="pack-btn" label="Join waitlist for bundles →" source="brand-packs" />
 
               <p className="pack-alt">
                 Three sizes — the bigger the bundle, the bigger the saving.

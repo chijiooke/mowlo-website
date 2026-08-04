@@ -4,9 +4,9 @@ import { Footer } from '@/components/Footer'
 import { Reveal } from '@/components/Reveal'
 import { GalleryGrid } from '@/components/GalleryGrid'
 import { getGalleryPage } from '@/lib/gallery'
+import { WaitlistCTA } from '@/components/WaitlistForm'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mowlo.co'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
 
 export const metadata: Metadata = {
   title: "Artist's Corner — work printed by Mowlo",
@@ -62,9 +62,7 @@ export default function GalleryPage() {
           <p>No capital, no stock. Upload once — we print, deliver, and pay you out.</p>
         </Reveal>
         <Reveal delay={0.1}>
-          <a href={`${APP_URL}/auth/register`} className="btn-hp">
-            Open your store →
-          </a>
+          <WaitlistCTA className="btn-hp" label="Join the waitlist →" source="gallery-page" />
         </Reveal>
       </div>
 

@@ -8,21 +8,21 @@ import { Reveal } from './Reveal'
 const STEPS = [
   {
     n: '01',
-    title: 'Pick your product',
-    body: 'Stickers, business cards, flyers, thank-you cards — or a full Brand Pack in one order. Order 25 or 500; there is no minimum that eats your profit.',
-    tags: ['Stickers', 'Cards', 'Flyers', 'Brand Packs'],
+    title: 'Select a product or pack',
+    body: 'Stickers, business cards, flyers, thank-you cards, tees — one at a time, or a curated bundle that costs less than the pieces on their own. Order 25 or 500; no minimum that eats your profit.',
+    tags: ['Stickers', 'Cards', 'Flyers', 'Bundles'],
   },
   {
     n: '02',
-    title: 'Answer 5 questions',
-    body: 'That is the whole brief. You get a logo, a colour palette and print-ready layouts in minutes — no designer, no trip to Computer Village. Already have a file? Upload it instead.',
-    tags: ['AI brand kit', 'Saved brand profile', 'Or upload your own'],
+    title: 'Add your design — or let AI do it',
+    body: 'Upload the designs you already have. No designs? Answer five questions and our AI designer draws your logo, colour palette and print-ready layouts in minutes — no designer, no trip to Computer Village.',
+    tags: ['Upload your own', 'AI designer', 'Saved brand profile'],
   },
   {
     n: '03',
-    title: 'Approve your proof',
-    body: 'Your proof is ready in minutes — approve it with one tap and we go straight to print. Then we deliver: 24hrs in Lagos, 2–3 days across Nigeria and Ghana, with status the whole way.',
-    tags: ['One-tap proofing', '24hr Lagos', 'Delivery tracking'],
+    title: 'Track it to your door',
+    body: 'Approve your proof with one tap and we go straight to print. Then follow it the whole way — from the press to the rider at your gate. 24hrs in Lagos, 2–3 days across Nigeria and Ghana.',
+    tags: ['One-tap proofing', 'Live tracking', '24hr Lagos'],
   },
 ]
 

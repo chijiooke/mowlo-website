@@ -5,8 +5,7 @@ import { Icon } from '@iconify/react'
 import { motion, useInView, useReducedMotion, type Variants } from 'framer-motion'
 import { Reveal } from './Reveal'
 import { MOWLO_BODY_PATH } from './MowloLogo'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
+import { useWaitlist } from './WaitlistForm'
 
 /**
  * The mascot, silhouetted into a product card. Six hand-drawn variants used to
@@ -84,6 +83,7 @@ export function ProductsSection() {
   const fanRef = useRef<HTMLDivElement>(null)
   const [spread, setSpread] = useState(MAX_SPREAD)
   const reduce = !!useReducedMotion()
+  const openWaitlist = useWaitlist()
   const inView = useInView(fanRef, { once: true, margin: '-120px' })
 
   // Open the hand only as wide as the section allows, so the outer cards never
@@ -128,9 +128,10 @@ export function ProductsSection() {
             // the hover rule can lift the card over its neighbours.
             <div key={p.name} className="deck-slot" style={{ ['--z' as string]: String(i) }}>
               <motion.div className="deck-card" custom={{ i, spread, reduce }} variants={card}>
-                <a
-                  href={p.soon ? '/partners' : `${APP_URL}/auth/register`}
+                <button
+                  type="button"
                   className="prod-card"
+                  onClick={() => openWaitlist(`product-${p.name.toLowerCase().replace(/\s+/g, '-')}`)}
                   style={{
                     ['--bg' as string]: p.bg,
                     ...(p.light ? { ['--fg' as string]: 'rgba(255,255,255,0.92)' } : {}),
@@ -142,7 +143,7 @@ export function ProductsSection() {
                     <div className={`card-p${p.soon ? ' cs' : ''}`}>{p.price}</div>
                   </div>
                   <Blob face={p.face} deco={p.deco} />
-                </a>
+                </button>
               </motion.div>
             </div>
           ))}

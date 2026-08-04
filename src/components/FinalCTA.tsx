@@ -1,7 +1,6 @@
 import { Reveal } from './Reveal'
 import { MowloLogo } from './MowloLogo'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
+import { WaitlistCTA } from './WaitlistForm'
 
 export function FinalCTA() {
   return (
@@ -31,12 +30,7 @@ export function FinalCTA() {
       </Reveal>
       <Reveal delay={0.1}>
         <div style={{ display: 'flex', gap: 13, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href={`${APP_URL}/auth/register`} className="btn-hp">
-            Start your brand →
-          </a>
-          <a href={`${APP_URL}/auth/login`} className="btn-hs">
-            Sign in
-          </a>
+          <WaitlistCTA className="btn-hp" label="Join the waitlist →" source="final-cta" />
         </div>
       </Reveal>
     </section>

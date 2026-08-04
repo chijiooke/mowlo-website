@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Icon } from '@iconify/react'
 import { CATEGORIES, type Category, type GalleryItem, type GalleryPage } from '@/lib/gallery'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
+import { WaitlistCTA } from './WaitlistForm'
 
 interface Props {
   initial: GalleryPage
@@ -243,9 +242,11 @@ function Lightbox({ item, onClose }: { item: GalleryItem | null; onClose: () => 
               <p className="lb-artist">
                 {item.artist} <span>{item.handle} · {item.city}</span>
               </p>
-              <a href={`${APP_URL}/auth/register`} className="pack-btn lb-cta">
-                Print something like this →
-              </a>
+              <WaitlistCTA
+                className="pack-btn lb-cta"
+                label="Join waitlist to print this →"
+                source="gallery-lightbox"
+              />
             </div>
           </motion.div>
         </motion.div>

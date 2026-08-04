@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MowloLogo } from './MowloLogo'
 import { useMediaQuery } from '@/lib/useMediaQuery'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173'
+import { useWaitlist } from './WaitlistForm'
 
 const WORDS = [
   { text: 'hustle', color: 'var(--amber)' },
@@ -73,6 +72,7 @@ export function Hero() {
   const [wordIdx, setWordIdx] = useState(0)
   const [cycle, setCycle] = useState(0)
   const isNarrow = useMediaQuery('(max-width: 640px)')
+  const openWaitlist = useWaitlist()
 
   useEffect(() => {
     const swapWord = setInterval(() => setWordIdx(i => (i + 1) % WORDS.length), 2800)
@@ -124,9 +124,13 @@ export function Hero() {
         </motion.p>
 
         <motion.div className="hero-btns flex flex-col sm:flex-row w-full sm:w-auto" {...rise(0.35)}>
-          <a href={`${APP_URL}/auth/register`} className="btn-hp w-full sm:w-auto text-center">
-            Start your brand →
-          </a>
+          <button
+            type="button"
+            className="btn-hp w-full sm:w-auto text-center"
+            onClick={() => openWaitlist('hero')}
+          >
+            Join the waitlist →
+          </button>
           <a href="#products" className="btn-hs w-full sm:w-auto text-center">
             Browse products
           </a>
@@ -149,38 +153,6 @@ export function Hero() {
       {/* ── Right: the card arc ── */}
       <div className="hero-right">
         <div className="card-cluster">
-          <motion.div
-            className="sticker-chip hidden md:flex"
-            initial={{ opacity: 0, x: -18 }}
-            animate={{ opacity: 1, x: 0, y: [0, -11, 0] }}
-            transition={{
-              opacity: { duration: 0.5, delay: 1.4 },
-              x: { duration: 0.5, delay: 1.4 },
-              y: { duration: 4.5, delay: 1.9, repeat: Infinity, ease: 'easeInOut' },
-            }}
-          >
-            <MowloLogo size={16} />
-            Stickers from ₦8,500
-          </motion.div>
-
-          <motion.div
-            className="card-b hidden md:block"
-            initial={{ opacity: 0, x: -28, rotate: 6 }}
-            animate={{ opacity: 1, x: 0, rotate: 6 }}
-            transition={{ duration: 0.75, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="cb-icon">
-              <MowloLogo size={28} />
-            </div>
-            <div className="cb-title">Brand Kit</div>
-            <p className="cb-sub">AI logo, colours and print assets generated instantly.</p>
-            <div className="cb-dots">
-              {['#F5A623', '#E8527A', '#1FB89E', '#8DB82B'].map(c => (
-                <span key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />
-              ))}
-            </div>
-          </motion.div>
-
           <div className="arc-stack">
             {CARDS.map((card, i) => {
               const pos = (i - cycle + CARDS.length) % CARDS.length
@@ -235,9 +207,14 @@ export function Hero() {
                         </div>
                       ))}
                     </div>
-                    <a href={`${APP_URL}/auth/register`} className="ca-btn" tabIndex={isFront ? 0 : -1}>
+                    <button
+                      type="button"
+                      className="ca-btn"
+                      tabIndex={isFront ? 0 : -1}
+                      onClick={() => openWaitlist('hero-card')}
+                    >
                       {card.cta}
-                    </a>
+                    </button>
                   </div>
                 </motion.div>
               )
