@@ -263,11 +263,24 @@ nav {
 /* Whichever card you point at comes to the front of the hand. */
 .deck-slot:hover { z-index: 30; }
 .deck-card { will-change: transform; pointer-events: auto; }
-/* Drag layer, kept separate from the pose layer above it. */
-.deck-drag { height: 100%; }
-/* The card on top of the shuffling pile can be picked up and thrown. */
-.deck-drag.grabbable { cursor: grab; touch-action: pan-y; }
-.deck-drag.grabbable:active { cursor: grabbing; }
+
+/* ── Products on a phone: a deck you swipe, not a fan ────────────────────── */
+.pdeck {
+  position: relative; margin: 0 auto 26px;
+  width: min(78vw, 320px); height: 314px;
+}
+/* Every card fills the deck box; depth is transform only, never layout. */
+.pdeck-card { position: absolute; inset: 0 0 auto 0; will-change: transform; }
+/* Separate layer for the card in your hand, so the drag and the pile's pose
+   never write to the same transform. */
+.pdeck-hand { height: 100%; }
+/* touch-action: none, not pan-y. With pan-y the browser keeps the right to
+   reclaim the gesture as a scroll — it fires pointercancel, the drag ends
+   without a callback, and the card is left stranded mid-swipe. The card is
+   300px tall with plenty of page around it, so owning the gesture is cheap. */
+.pdeck-hand.grabbable { cursor: grab; touch-action: none; }
+.pdeck-hand.grabbable:active { cursor: grabbing; }
+.pdeck .prod-card { min-height: 252px; box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5); }
 .deck-slot .prod-card { min-height: clamp(200px, 25vw, 262px); box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45); }
 
 .prod-card {
@@ -816,12 +829,6 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   /* One field per row once the panel is narrow. */
   .wl-row.col-6 { grid-column: span 12; }
-}
-@media (max-width: 640px) {
-  /* Shuffling rather than fanning, so each card can be far bigger. */
-  .deck-fan.shuffling .deck-slot { width: min(76vw, 320px); }
-  .deck-fan.shuffling .prod-card { min-height: 246px; }
-  .deck-wrap { min-height: 344px; }
 }
 @media (max-width: 520px) {
   .hero-proof { gap: 12px; }
