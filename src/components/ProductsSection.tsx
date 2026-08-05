@@ -2,9 +2,11 @@
 
 import { useLayoutEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { motion, useInView, useReducedMotion, type Variants } from 'framer-motion'
+import { motion, useInView, type Variants } from 'framer-motion'
+import { SETTLE, t, useReduce } from '@/lib/motion'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { Reveal } from './Reveal'
+import { ProductCard } from './ProductCard'
 import { ProductDeck } from './ProductDeck'
 import { PRODUCTS, productSource, type Product } from './products'
 import { useWaitlist } from './WaitlistForm'
@@ -13,6 +15,14 @@ import { useWaitlist } from './WaitlistForm'
 const MID = (PRODUCTS.length - 1) / 2
 /** Widest gap between neighbouring cards, as a share of one card's width. */
 const MAX_SPREAD = 62
+/** Tilt on each card while the deck is still squared up, in degrees per step. */
+const STACK_TILT = 1.8
+/** How far the arc lifts its middle, as a share of the spread. */
+const ARC_LIFT = 0.045
+/** Tilt across the open hand, in degrees per unit of spread. */
+const FAN_TILT = 0.16
+/** Share of the section the hand may fill — the rest is room for the tilt. */
+const FIT_MARGIN = 0.92
 
 interface FanPose {
   i: number
@@ -30,14 +40,14 @@ const card: Variants = {
   stacked: ({ i }: FanPose) => ({
     x: '0%',
     y: '0%',
-    rotate: (i - MID) * 1.8,
+    rotate: (i - MID) * STACK_TILT,
   }),
   fanned: ({ i, spread, reduce }: FanPose) => ({
     x: `${(i - MID) * spread}%`,
     // Squared term lifts the middle of the hand and drops the outer cards.
-    y: `${(i - MID) ** 2 * spread * 0.045}%`,
-    rotate: (i - MID) * spread * 0.16,
-    transition: reduce ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 22, mass: 0.8 },
+    y: `${(i - MID) ** 2 * spread * ARC_LIFT}%`,
+    rotate: (i - MID) * spread * FAN_TILT,
+    transition: t(reduce, SETTLE),
   }),
 }
 
@@ -77,7 +87,7 @@ export function ProductsSection() {
 function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
   const fanRef = useRef<HTMLDivElement>(null)
   const [spread, setSpread] = useState(MAX_SPREAD)
-  const reduce = !!useReducedMotion()
+  const reduce = useReduce()
   const inView = useInView(fanRef, { once: true, margin: '-120px' })
 
   // Open the hand only as wide as the section allows. Re-fits on resize.
@@ -89,8 +99,7 @@ function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
     const fit = () => {
       const slotWidth = slot.offsetWidth
       if (!slotWidth) return
-      // The 0.92 leaves room for the tilt of the outermost cards.
-      const roomPerStep = (fan.offsetWidth * 0.92 - slotWidth) / 2 / MID
+      const roomPerStep = (fan.offsetWidth * FIT_MARGIN - slotWidth) / 2 / MID
       setSpread(Math.max(16, Math.min(MAX_SPREAD, (roomPerStep / slotWidth) * 100)))
     }
 
@@ -116,22 +125,7 @@ function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
           // card over its neighbours.
           <div key={p.name} className="deck-slot" style={{ ['--z' as string]: String(i) }}>
             <motion.div className="deck-card" custom={{ i, spread, reduce }} variants={card}>
-              <button
-                type="button"
-                className="prod-card"
-                onClick={() => onOpen(p)}
-                style={{
-                  ['--bg' as string]: p.bg,
-                  ...(p.light ? { ['--fg' as string]: 'rgba(255,255,255,0.92)' } : {}),
-                }}
-              >
-                <div>
-                  <div className="card-name">{p.name}</div>
-                  <div className="card-spec">{p.spec}</div>
-                  {p.soon && <div className="card-p cs">Coming soon</div>}
-                </div>
-                <p.Blob />
-              </button>
+              <ProductCard product={p} onOpen={() => onOpen(p)} />
             </motion.div>
           </div>
         ))}

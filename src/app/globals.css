@@ -262,35 +262,38 @@ nav {
 }
 /* Whichever card you point at comes to the front of the hand. */
 .deck-slot:hover { z-index: 30; }
-.deck-card { will-change: transform; pointer-events: auto; }
+.deck-card { pointer-events: auto; }
 
 /* ── Products on a phone: a deck you swipe, not a fan ────────────────────── */
 .pdeck {
+  /* --step must match STEP in ProductDeck.tsx; the height is derived from it
+     so changing the stacking cannot silently overflow the box. */
+  --card-h: 252px;
+  --step: 18px;
+  --max-depth: 3;
   position: relative; margin: 0 auto 26px;
-  width: min(78vw, 320px); height: 314px;
+  width: min(78vw, 320px);
+  height: calc(var(--card-h) + var(--step) * var(--max-depth) + 12px);
 }
 /* Every card fills the deck box; depth is transform only, never layout. */
-.pdeck-card { position: absolute; inset: 0 0 auto 0; will-change: transform; }
+.pdeck-card { position: absolute; inset: 0 0 auto 0; }
 /* Separate layer for the card in your hand, so the drag and the pile's pose
    never write to the same transform. */
-.pdeck-hand { height: 100%; }
-/* touch-action: none, not pan-y. With pan-y the browser keeps the right to
-   reclaim the gesture as a scroll — it fires pointercancel, the drag ends
-   without a callback, and the card is left stranded mid-swipe. The card is
-   300px tall with plenty of page around it, so owning the gesture is cheap. */
-.pdeck-hand.grabbable { cursor: grab; touch-action: none; }
+.pdeck-hand.grabbable { cursor: grab; }
 .pdeck-hand.grabbable:active { cursor: grabbing; }
-.pdeck .prod-card { min-height: 252px; box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5); }
+.pdeck .prod-card { min-height: var(--card-h); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5); }
 .deck-slot .prod-card { min-height: clamp(200px, 25vw, 262px); box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45); }
 
 .prod-card {
   text-align: left; width: 100%; border: none; cursor: pointer; font-family: var(--body);
   --fg: rgba(0, 0, 0, 0.82);
   border-radius: 26px; padding: 26px 24px 22px; position: relative; overflow: hidden;
-  min-height: 210px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 210px; display: flex; flex-direction: column; justify-content: space-between;
   background: var(--bg); text-decoration: none;
   transition: transform .28s, filter .28s, box-shadow .28s;
 }
+/* Light type, for the darker card backgrounds. */
+.prod-card.is-light { --fg: rgba(255, 255, 255, 0.92); }
 .prod-card:hover { transform: translateY(-7px); filter: brightness(1.06); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); }
 .card-blob-c { position: absolute; right: -10px; bottom: -10px; width: 130px; height: 130px; transition: transform .35s; }
 .prod-card:hover .card-blob-c { transform: scale(1.1) rotate(5deg); }
@@ -824,6 +827,11 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
   .pack-show-body { padding: 26px 22px 24px; }
   .pack-list { grid-template-columns: 1fr; }
   .section, .packs-inner, .app-inner, .testi { padding-top: 72px; padding-bottom: 72px; }
+}
+@media (max-width: 640px) {
+  /* The server renders the fan and the client swaps in the deck; matching the
+     reserved height keeps that swap from shifting the page. */
+  .deck-wrap { min-height: 318px; margin-bottom: 26px; }
 }
 @media (max-width: 700px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }

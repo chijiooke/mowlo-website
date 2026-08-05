@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { MOWLO_BODY_PATH } from './MowloLogo'
 
 /**
@@ -49,14 +50,20 @@ function blob(face: string, deco?: React.ReactNode) {
   }
 }
 
-export const PRODUCTS: Product[] = [
-  { name: 'Stickers',        spec: 'Round · Square · Die-cut', bg: '#F5A623', face: '#0E0E0F', Blob: blob('#0E0E0F') },
-  { name: 'Business Cards',  spec: '85×55mm · Matte or Gloss', bg: '#1FB89E', face: '#0a5248', Blob: blob('#0a5248', antenna) },
-  { name: 'Flyers',          spec: 'A5 · A4 · DL',             bg: '#E8527A', face: '#6b1530', Blob: blob('#6b1530') },
-  { name: 'Tee Shirts',      spec: 'S–XXL · DTF print',        bg: '#7C5CBF', face: '#2d1b69', light: true, Blob: blob('#2d1b69', sparkle) },
-  { name: 'Thank-You Cards', spec: 'A6 · custom size',         bg: '#2A9FD6', face: '#0b4a6b', Blob: blob('#0b4a6b', heart) },
-  { name: 'Branded Bags',    spec: 'Paper & shopping',         bg: '#8DB82B', face: '#3d5c0a', soon: true, Blob: blob('#3d5c0a') },
+/** The face colour is written once and the mascot is built from it. */
+const CATALOGUE = [
+  { name: 'Stickers',        spec: 'Round · Square · Die-cut', bg: '#F5A623', face: '#0E0E0F' },
+  { name: 'Business Cards',  spec: '85×55mm · Matte or Gloss', bg: '#1FB89E', face: '#0a5248', deco: antenna },
+  { name: 'Flyers',          spec: 'A5 · A4 · DL',             bg: '#E8527A', face: '#6b1530' },
+  { name: 'Tee Shirts',      spec: 'S–XXL · DTF print',        bg: '#7C5CBF', face: '#2d1b69', light: true, deco: sparkle },
+  { name: 'Thank-You Cards', spec: 'A6 · custom size',         bg: '#2A9FD6', face: '#0b4a6b', deco: heart },
+  { name: 'Branded Bags',    spec: 'Paper & shopping',         bg: '#8DB82B', face: '#3d5c0a', soon: true },
 ]
+
+export const PRODUCTS: Product[] = CATALOGUE.map(({ deco, ...p }) => ({ ...p, Blob: blob(p.face, deco) }))
+
+/** The custom properties a card paints itself with. */
+export const cardVars = (p: Product) => ({ ['--bg']: p.bg }) as CSSProperties
 
 /** Analytics tag for a card, e.g. `product-business-cards`. */
 export const productSource = (p: Product) => `product-${p.name.toLowerCase().replace(/\s+/g, '-')}`
