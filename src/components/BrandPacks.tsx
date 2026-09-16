@@ -4,13 +4,12 @@ import { WaitlistCTA } from './WaitlistForm'
 
 /**
  * One card, one message: printing together costs less than printing one thing
- * at a time. No tier names, no naira figures — just the bundle and the saving.
+ * at a time. No tier names and no figures — pricing isn't set yet.
  */
 const BUNDLE = {
   eyebrow: 'Curated bundle',
   name: 'Order it all together, pay less.',
   note: 'We put the things every small business actually prints into one curated bundle. Order them together and the whole run costs less than buying each piece on its own.',
-  save: '23%',
   items: [
     'Business cards',
     'Product stickers',
@@ -36,7 +35,7 @@ export function BrandPacks() {
           <h2 className="sec-title">
             Bundle it.
             <br />
-            Save up to {BUNDLE.save}.
+            Pay less.
           </h2>
         </Reveal>
         <Reveal delay={0.1}>
@@ -56,18 +55,12 @@ export function BrandPacks() {
                 sizes="(max-width: 880px) 100vw, 44vw"
                 className="pack-show-img"
               />
-              <span className="pack-save">Save {BUNDLE.save}</span>
             </div>
 
             <div className="pack-show-body">
               <div className="pack-tier">{BUNDLE.eyebrow}</div>
               <h3 className="pack-name">{BUNDLE.name}</h3>
               <p className="pack-note">{BUNDLE.note}</p>
-
-              <div className="pack-prices">
-                <span className="pack-price">{BUNDLE.save}</span>
-                <span className="pack-was">less than ordering these one by one</span>
-              </div>
 
               <ul className="pack-list">
                 {BUNDLE.items.map(i => (

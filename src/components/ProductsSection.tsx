@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react'
 import { motion, useInView, type Variants } from 'framer-motion'
 import { SETTLE, t, useReduce } from '@/lib/motion'
 import { useMediaQuery } from '@/lib/useMediaQuery'
+import { PopLetters } from './type/PopLetters'
 import { Reveal } from './Reveal'
 import { ProductCard } from './ProductCard'
 import { ProductDeck } from './ProductDeck'
@@ -68,9 +69,9 @@ export function ProductsSection() {
 
       <Reveal delay={0.05} className="deck-head">
         <h2 className="sec-title sec-title-xl">
-          Show up
+          <PopLetters text="Show up" />
           <br />
-          properly.
+          <PopLetters text="properly." delay={0.25} />
         </h2>
       </Reveal>
       <Reveal delay={0.1} className="deck-head">

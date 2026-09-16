@@ -6,6 +6,7 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
+import { getLenis } from '@/lib/scroll/SmoothScroll'
 
 /** The two markets Mowlo prints and delivers in. */
 const COUNTRIES = [
@@ -122,11 +123,14 @@ function WaitlistModal({ open, onClose, source }: { open: boolean; onClose: () =
 
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
+    // Lenis drives the page scroll itself and ignores overflow: hidden.
+    getLenis()?.stop()
     closeRef.current?.focus()
 
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
+      getLenis()?.start()
       opener?.focus?.()
     }
   }, [open, onClose])
@@ -140,6 +144,7 @@ function WaitlistModal({ open, onClose, source }: { open: boolean; onClose: () =
       {open && (
         <motion.div
           className="wl-modal"
+          data-lenis-prevent
           role="dialog"
           aria-modal="true"
           aria-labelledby="wl-modal-title"

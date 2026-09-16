@@ -3,9 +3,11 @@ import { Bricolage_Grotesque, DM_Sans } from 'next/font/google'
 import { WaitlistProvider } from '@/components/WaitlistForm'
 import './globals.css'
 
+// Variable, not fixed weights: the width axis is what sets the condensed poster
+// type (font-condensed), and one file covers every weight.
 const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
-  weight: ['400', '600', '800'],
+  axes: ['opsz', 'wdth'],
   variable: '--font-bricolage',
   display: 'swap',
 })

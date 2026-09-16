@@ -1,5 +1,108 @@
 @import "tailwindcss";
 
+/* ── Design tokens ──────────────────────────────────────────────────────────
+   The redesign reads only these, through Tailwind utilities (bg-ink,
+   text-poster, ease-out-expo, px-gutter, max-w-page …). The legacy :root
+   variables further down stay until every section has moved over — see
+   plans/LANDING_REDESIGN_PLAN.md, Phase 7. */
+@theme {
+  --color-ink: #0A0A0B;
+  --color-ink-2: #141416;
+  --color-ink-3: #1E1E22;
+  --color-bone: #F0EDE8;
+  --color-cream: #F5F2EC;
+  --color-paper: #FBF9F5;
+  --color-muted: #7A7875;
+  --color-muted-on-light: #5F5D58;
+  --color-amber: #F5A623;
+  --color-amber-hi: #FFD152;
+  --color-amber-deep: #B26A00;
+  --color-teal: #1FB89E;
+  --color-teal-deep: #0E7A68;
+  --color-pink: #E8527A;
+  --color-pink-deep: #C2264F;
+  --color-purple: #7C5CBF;
+  --color-purple-deep: #6845AE;
+  --color-sky: #2A9FD6;
+  --color-lime: #8DB82B;
+
+  /* Exaggerated display scale. Pair mega/poster with font-condensed. */
+  --text-mega: clamp(4.5rem, 19vw, 18rem);
+  --text-mega--line-height: 0.82;
+  --text-mega--letter-spacing: -0.045em;
+  --text-mega--font-weight: 800;
+  --text-poster: clamp(3rem, 9vw, 8.5rem);
+  --text-poster--line-height: 0.88;
+  --text-poster--letter-spacing: -0.04em;
+  --text-poster--font-weight: 800;
+  --text-title: clamp(1.5rem, 3vw, 2.5rem);
+  --text-title--line-height: 1;
+  --text-title--letter-spacing: -0.03em;
+  --text-title--font-weight: 700;
+  --text-lead: clamp(1.125rem, 1.6vw, 1.375rem);
+  --text-lead--line-height: 1.55;
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.14em;
+  --text-eyebrow--font-weight: 600;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --spacing-gutter: clamp(1.25rem, 4vw, 3rem);
+  --spacing-section: clamp(6rem, 14vh, 11rem);
+  --container-page: 1320px;
+}
+
+/* Fonts point at next/font's variables, so they must resolve at use time. */
+@theme inline {
+  --font-display: var(--font-bricolage), 'Bricolage Grotesque', sans-serif;
+  --font-body: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+}
+
+/* Bricolage is loaded variable: the width axis gives the poster look without
+   a second family. */
+@utility font-condensed { font-stretch: 75%; }
+@utility font-semicondensed { font-stretch: 87.5%; }
+
+/* ── Print-shop patterns ─────────────────────────────────────────────────── */
+/* Halftone dots — for cream grounds. */
+@utility bg-halftone {
+  background-image: radial-gradient(circle, rgb(10 10 11 / 0.1) 1.1px, transparent 1.7px);
+  background-size: 14px 14px;
+}
+/* Paper grain — for ink grounds. */
+@utility bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
+}
+/* Die-cut dashed rules — for ink-2 grounds. */
+@utility bg-diecut {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='144'%3E%3Cpath d='M0 72H144' stroke='%23F0EDE8' stroke-opacity='0.09' stroke-width='1.5' stroke-dasharray='10 8'/%3E%3C/svg%3E");
+}
+/* Crop marks at every tile corner — for amber grounds. */
+@utility bg-cropmarks {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='%230A0A0B' stroke-opacity='0.16' stroke-width='1.5'%3E%3Cpath d='M0 12H18M12 0V18M160 12H142M148 0V18M0 148H18M12 160V142M160 148H142M148 160V142'/%3E%3C/svg%3E");
+}
+/* Fades a pattern out toward the edges so it never frames the content. */
+@utility pattern-fade {
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, black 35%, transparent);
+}
+
+/* Light halftone — for ink grounds. */
+@utility bg-halftone-light {
+  background-image: radial-gradient(circle, rgb(240 237 232 / 0.09) 1.1px, transparent 1.7px);
+  background-size: 16px 16px;
+}
+/* Crop marks in bone — for ink grounds. */
+@utility bg-cropmarks-light {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='%23F0EDE8' stroke-opacity='0.14' stroke-width='1.5'%3E%3Cpath d='M0 12H18M12 0V18M160 12H142M148 0V18M0 148H18M12 160V142M160 148H142M148 160V142'/%3E%3C/svg%3E");
+}
+/* Fine diagonal print stripes — for ink grounds. */
+@utility bg-stripes-light {
+  background-image: repeating-linear-gradient(135deg, rgb(240 237 232 / 0.05) 0 2px, transparent 2px 18px);
+}
+
 /* ── Brand tokens ───────────────────────────────────────────────────────── */
 :root {
   --amber: #F5A623;
@@ -118,87 +221,6 @@ nav {
   text-decoration: none; display: inline-block;
 }
 .btn-hs:hover { background: rgba(255, 255, 255, 0.09); }
-
-/* ── Hero ───────────────────────────────────────────────────────────────── */
-.hero {
-  min-height: 100vh; display: flex; align-items: center;
-  padding: 120px 6% 80px; position: relative; overflow: hidden;
-}
-.glow-tr { position: absolute; top: -120px; right: -60px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(245, 166, 35, 0.11) 0%, transparent 65%); pointer-events: none; }
-.glow-bl { position: absolute; bottom: -80px; left: -40px; width: 500px; height: 400px; background: radial-gradient(circle, rgba(31, 184, 158, 0.07) 0%, transparent 65%); pointer-events: none; }
-.grid-bg {
-  position: absolute; inset: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent);
-}
-.hero-left { width: 52%; position: relative; z-index: 5; }
-.hero-right { width: 48%; height: 660px; position: relative; z-index: 5; perspective: 1100px; }
-
-.hero h1 {
-  font-family: var(--display); font-size: clamp(52px, 8.4vw, 116px); font-weight: 800;
-  letter-spacing: -0.045em; line-height: 0.94; color: var(--text); margin-bottom: 26px;
-}
-.hero h1 .hi { color: var(--amber); }
-.hero p { font-size: clamp(16px, 1.8vw, 20px); color: var(--muted); max-width: 500px; line-height: 1.7; margin-bottom: 38px; }
-.hero-btns { display: flex; gap: 13px; flex-wrap: wrap; margin-bottom: 52px; }
-/* Claims, not figures — one line each, so nothing has to stand alone as a
-   headline word. Auto-fit drops them to one column when the space runs out. */
-.hero-proof {
-  list-style: none;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
-  gap: 14px 20px; max-width: 580px;
-}
-.hproof {
-  --pc: var(--amber);
-  display: flex; align-items: center; gap: 10px;
-  font-size: 14px; font-weight: 600; color: var(--text);
-}
-.hproof-icon {
-  width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--pc);
-  background: color-mix(in srgb, var(--pc) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--pc) 30%, transparent);
-}
-
-
-/* Hero card cluster */
-.card-cluster { position: relative; width: 100%; height: 100%; }
-.arc-stack {
-  position: absolute; right: 10px; top: 50%;
-  width: 300px; height: 400px;
-  animation: floatArc 5.5s ease-in-out infinite;
-}
-.arc-card {
-  position: absolute; top: 0; left: 0; width: 300px;
-  background: rgba(18, 18, 22, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 22px; overflow: hidden;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  transform-origin: center bottom;
-  transition: filter 0.3s, box-shadow 0.3s;
-}
-.arc-card:hover { filter: brightness(1.06); box-shadow: 0 50px 90px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
-
-.arc-photo-wrap { position: relative; width: 100%; overflow: hidden; }
-.ca-photo-overlay { position: absolute; inset: 0 0 auto 0; height: 140px; background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(18, 18, 22, 0.72)); pointer-events: none; }
-.ca-photo-name { position: absolute; top: 108px; left: 18px; font-family: var(--display); font-size: 17px; font-weight: 800; color: white; letter-spacing: -0.3px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); }
-.ca-body { padding: 16px 18px 18px; }
-.ca-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.ca-title { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
-.ca-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
-.ca-tag { font-size: 11px; padding: 3px 9px; border-radius: 100px; background: rgba(245, 166, 35, 0.12); color: var(--amber); font-weight: 600; }
-.ca-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.ca-stat { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); border-radius: 11px; padding: 10px; }
-.ca-stat b { display: block; font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.4px; }
-.ca-stat span { font-size: 10px; color: var(--muted); }
-.ca-btn {
-  display: block; width: 100%; text-align: center; margin-top: 12px; padding: 10px; border-radius: 100px;
-  border: none; background: var(--amber); color: var(--ink); font-family: var(--body);
-  font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s; text-decoration: none;
-}
-.ca-btn:hover { background: var(--amber-hi); }
 
 /* ── Trust marquee ──────────────────────────────────────────────────────── */
 .marquee {
@@ -324,20 +346,11 @@ nav {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(200deg, rgba(10, 10, 11, 0.45) 0%, transparent 45%, rgba(10, 10, 11, 0.35) 100%);
 }
-.pack-save {
-  position: absolute; top: 20px; left: 20px; z-index: 2;
-  background: var(--pk); color: var(--pk-fg); padding: 7px 15px; border-radius: 100px;
-  font-size: 13px; font-weight: 800; letter-spacing: -0.01em;
-  box-shadow: 0 10px 26px color-mix(in srgb, var(--pk) 40%, transparent);
-}
 .pack-show-body { padding: 34px 34px 30px; }
 
 .pack-tier { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .pack-name { font-family: var(--display); font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
 .pack-note { font-size: 14px; color: var(--muted); margin: 8px 0 18px; max-width: 400px; }
-.pack-prices { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-.pack-price { font-family: var(--display); font-size: clamp(40px, 4.6vw, 56px); font-weight: 800; letter-spacing: -0.045em; color: var(--pk); line-height: 1; }
-.pack-was { font-size: 13.5px; color: var(--muted); max-width: 190px; line-height: 1.45; }
 .pack-alt { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
 .pack-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
 .pack-list li { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 9px; }
@@ -363,232 +376,6 @@ nav {
   font-weight: 600; cursor: pointer; transition: background .2s; white-space: nowrap; text-decoration: none; display: inline-block;
 }
 .cs-waitlist:hover { background: rgba(245, 166, 35, 0.1); }
-
-/* ── How it works ───────────────────────────────────────────────────────── */
-.steps { display: flex; flex-direction: column; }
-.step {
-  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 40px; align-items: center;
-  padding: 52px 0; border-top: 1px solid var(--border);
-}
-/* Each .step is wrapped in its own <Reveal>, so :last-child has to be scoped
-   to the list itself — otherwise every step matches and doubles its borders. */
-.steps > :last-child .step { border-bottom: 1px solid var(--border); }
-.step-n {
-  font-family: var(--display); font-size: clamp(88px, 14vw, 190px); font-weight: 800;
-  letter-spacing: -0.06em; line-height: 0.8;
-  color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.14);
-  transition: -webkit-text-stroke-color .4s, color .4s;
-}
-.step:hover .step-n { -webkit-text-stroke-color: var(--amber); color: rgba(245, 166, 35, 0.06); }
-.step-title { font-family: var(--display); font-size: clamp(24px, 3vw, 36px); font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin-bottom: 12px; line-height: 1.1; }
-.step-body { font-size: 16px; color: var(--muted); line-height: 1.7; max-width: 460px; }
-.step-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
-.step-tag { font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 100px; background: rgba(245, 166, 35, 0.1); color: var(--amber); }
-
-/* ── Mobile app ─────────────────────────────────────────────────────────── */
-/* The one light section on the page. Rather than restyling every rule below,
-   it re-points the theme tokens its children already read — so ink-on-white
-   falls out of the same markup. The phone and its notifications opt back out. */
-.app-bg {
-  --text: #14141A;
-  --muted: #5F5D58;
-  --border: rgba(10, 10, 11, 0.13);
-  /* Edges that must read as controls need 3:1, which a hairline tint can't do. */
-  --line: #9A9894;
-  --faint: rgba(10, 10, 11, 0.04);
-  /* Brand colours a shade deeper, so they carry on a light ground. */
-  --teal: #0E7A68;
-  --amber: #B26A00;
-  --pink: #C2264F;
-  --purple: #6845AE;
-  position: relative;
-  /* Warm off-white, in the same family as --text — a light mode, not a hole. */
-  background: #FAF7F2;
-  overflow: hidden;
-}
-/* Printed-paper dot grid, faded out at the edges. */
-.app-bg::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background-image: radial-gradient(rgba(10, 10, 11, 0.08) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse 78% 68% at 50% 42%, black, transparent);
-}
-/* Cut edges instead of fades. --edge carries the colour of the section on the
-   other side of the boundary, so the shapes read as one surface overlapping
-   the other. */
-.edge { position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none; }
-/* Bumps out: half-discs of this section pushing up into the one above. */
-.edge-scallop {
-  --r: 26px;
-  top: 0; height: var(--r);
-  background: radial-gradient(
-    circle at 50% 100%,
-    transparent 0 calc(var(--r) - 1px),
-    var(--edge) var(--r)
-  );
-  background-size: calc(var(--r) * 2) 100%;
-}
-/* Bites in: half-discs of the section below punched into this one. */
-.edge-ticket {
-  --r: 13px;
-  bottom: 0; height: var(--r);
-  background: radial-gradient(
-    circle at 50% 100%,
-    var(--edge) 0 calc(var(--r) - 1px),
-    transparent var(--r)
-  );
-  background-size: calc(var(--r) * 2) 100%;
-}
-.app-inner {
-  position: relative; z-index: 2;
-  padding: 104px 6%; max-width: 1200px; margin: 0 auto;
-  display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 64px; align-items: center;
-}
-.app-pitch .sec-label { margin-bottom: 18px; }
-
-.app-title {
-  font-family: var(--display); font-weight: 800;
-  letter-spacing: -0.045em; line-height: 0.92; color: var(--text); margin-bottom: 24px;
-  display: flex; flex-direction: column; align-items: flex-start;
-  isolation: isolate;
-}
-.app-title-line { display: inline-block; white-space: nowrap; }
-/* The shorter the line, the larger it is set — the three sizes are in the
-   ratio that makes all three span the same width (roughly 2.94 : 1 : 1.10).
-   Retune all three together if the copy changes. */
-.app-title-line.l1 { font-size: clamp(70px, 43.4vw, 249px); }
-.app-title-line.l2 { font-size: clamp(24px, 14.8vw, 85px); }
-.app-title-line.l3 { font-size: clamp(26.5px, 16.3vw, 94px); }
-/* A quiet tint behind the second line — the section's one flourish. */
-.app-title-hi { position: relative; color: var(--teal); }
-.app-title-hi::after {
-  content: ''; position: absolute; z-index: -1;
-  left: -0.04em; right: -0.04em; bottom: 0.09em; height: 0.13em;
-  background: color-mix(in srgb, var(--teal) 15%, transparent);
-  border-radius: 100px;
-}
-.app-sub { font-size: 16px; color: var(--muted); line-height: 1.7; max-width: 440px; margin-bottom: 24px; }
-
-/* Store markers — full-colour marks, but plain spans: the app is not out. */
-.app-stores { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
-.app-store {
-  display: inline-flex; align-items: center; gap: 11px; padding: 9px 18px 9px 14px;
-  border-radius: 14px; border: 1px solid var(--border); background: #FFFFFF;
-  font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.15;
-  box-shadow: 0 2px 5px rgba(10, 10, 11, 0.05);
-}
-.app-store small { display: block; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
-
-.app-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-.app-cta-note { font-size: 12.5px; color: var(--muted); max-width: 330px; line-height: 1.5; }
-
-/* Phone mock */
-.phone-stage { position: relative; display: flex; justify-content: center; align-items: center; min-height: 560px; }
-/* A dark app UI sitting on the light section — the dark tokens all go back on,
-   brand colours included, or a token tuned for white leaks into the mock. */
-.phone {
-  --text: #F0EDE8;
-  --muted: #8E8B87;
-  --border: rgba(255, 255, 255, 0.08);
-  --teal: #1FB89E;
-  --amber: #F5A623;
-  --pink: #E8527A;
-  --purple: #7C5CBF;
-  position: relative; z-index: 2;
-  width: 274px; height: 552px; border-radius: 46px; padding: 11px;
-  background: linear-gradient(160deg, #2A2A31, #131317);
-  box-shadow: 0 44px 90px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-.phone-screen {
-  width: 100%; height: 100%; border-radius: 36px; overflow: hidden;
-  /* Its own near-black, so the app reads as a different surface to the site. */
-  background: linear-gradient(#0D0D12, #08080B); position: relative;
-  display: flex; flex-direction: column;
-}
-.phone-notch {
-  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
-  width: 86px; height: 22px; border-radius: 100px; background: #08080A; z-index: 6;
-}
-/* A real screenshot has one of these; without it the notch floats on nothing. */
-.phone-statusbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px 0; font-size: 10px; font-weight: 600; color: var(--text);
-}
-.phone-statusbar-icons { display: flex; align-items: center; gap: 4px; color: var(--text); }
-
-/* Toast — overlays the content, the way a real one does. */
-.phone-toast {
-  position: absolute; z-index: 7; top: 104px; left: 12px; right: 12px;
-  display: flex; align-items: center; gap: 9px;
-  padding: 9px 11px; border-radius: 14px;
-  background: rgba(38, 38, 45, 0.97); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
-}
-.phone-toast-text { font-size: 11.5px; font-weight: 600; color: var(--text); }
-
-.phone-head { padding: 12px 16px 12px; border-bottom: 1px solid var(--border); }
-.phone-hello { font-size: 10.5px; color: var(--muted); }
-.phone-brand { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.4px; }
-/* Top padding clears the toast, which floats over this area. */
-.phone-body { padding: 50px 12px 12px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-.phone-card { background: var(--ink2); border: 1px solid var(--border); border-radius: 16px; padding: 12px 13px; }
-/* The order in flight gets its own surface, so it separates from the archive. */
-.phone-card.live { background: color-mix(in srgb, var(--teal) 9%, var(--ink2)); border-color: color-mix(in srgb, var(--teal) 26%, transparent); }
-.phone-card-label { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
-.phone-card-title { font-size: 12.5px; font-weight: 600; color: var(--text); }
-
-/* Spend and volume at a glance */
-.phone-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.phone-stat { background: var(--ink2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 11px; }
-.phone-stat-val { font-family: var(--display); font-size: 16px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
-.phone-stat-lbl { font-size: 9.5px; color: var(--muted); margin-top: 1px; }
-
-.phone-steps { display: flex; gap: 5px; margin-top: 10px; }
-.phone-step { flex: 1; height: 4px; border-radius: 100px; background: rgba(255, 255, 255, 0.09); }
-.phone-step.on { background: var(--teal); }
-/* Named stages — four blank bars are a meter, not a status. */
-.phone-steplabels { display: flex; margin-top: 6px; font-size: 7.5px; font-weight: 600; color: var(--muted); }
-.phone-steplabels span { flex: 1; }
-.phone-steplabels .now { color: var(--teal); }
-
-/* Past orders, each with its own reorder pill */
-.phone-orders { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.phone-order { display: flex; align-items: center; gap: 8px; }
-.phone-order-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.phone-order-text { flex: 1; min-width: 0; }
-.phone-order-name { font-size: 11.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.phone-order-meta { font-size: 9px; color: var(--muted); }
-.phone-reorder {
-  flex-shrink: 0; font-size: 9.5px; font-weight: 700; color: var(--amber);
-  padding: 4px 9px; border-radius: 100px;
-  background: color-mix(in srgb, var(--amber) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--amber) 32%, transparent);
-}
-.phone-tabs {
-  display: flex; justify-content: space-around; align-items: center;
-  padding: 12px 0 18px; border-top: 1px solid var(--border); background: var(--ink2);
-}
-.phone-tab { color: var(--muted); display: flex; }
-.phone-tab.on { color: var(--amber); }
-.phone-fab {
-  width: 42px; height: 42px; border-radius: 50%; background: var(--amber); color: var(--ink);
-  display: flex; align-items: center; justify-content: center; margin-top: -26px;
-  box-shadow: 0 8px 22px rgba(245, 166, 35, 0.45);
-}
-/* Floating push-notification cards */
-/* White cards on a light ground need a tight contact shadow to hold an edge —
-   a diffuse drop shadow alone reads as fog. */
-.push {
-  position: absolute; z-index: 8; width: 232px;
-  display: flex; gap: 10px; align-items: center;
-  background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; padding: 11px 13px;
-  box-shadow: 0 2px 6px rgba(10, 10, 11, 0.08), 0 18px 40px rgba(10, 10, 11, 0.14);
-}
-.push-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.push-title { font-size: 12px; font-weight: 700; color: var(--text); }
-.push-body { font-size: 11px; color: var(--muted); line-height: 1.4; }
 
 /* Waitlist modal — launched from the light section, so the panel is light too. */
 .wl-modal {
@@ -675,20 +462,6 @@ nav {
 .wl-err { border-color: var(--pink) !important; }
 .wl-msg { font-size: 13px; }
 .wl-msg p { justify-content: center; }
-
-/* ── Testimonials ───────────────────────────────────────────────────────── */
-.testi { padding: 96px 6%; max-width: 1200px; margin: 0 auto; }
-.testi-h { font-family: var(--display); font-size: clamp(34px, 6vw, 72px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.0; color: var(--text); margin-bottom: 48px; }
-.testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 13px; }
-.testi-card { background: var(--ink2); border: 1px solid var(--border); border-radius: 20px; padding: 24px; height: 100%; transition: border-color .2s, transform .2s; }
-.testi-card:hover { border-color: rgba(255, 255, 255, 0.12); transform: translateY(-3px); }
-.tq { font-size: 15px; color: var(--text); line-height: 1.65; margin-bottom: 18px; }
-.tq::before { content: '\201C'; color: var(--amber); }
-.tq::after { content: '\201D'; color: var(--amber); }
-.tw { display: flex; align-items: center; gap: 10px; }
-.tav { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-.tnm { font-size: 13px; font-weight: 600; color: var(--text); }
-.thn { font-size: 12px; color: var(--muted); }
 
 /* ── Gallery ────────────────────────────────────────────────────────────── */
 .gal-head { padding: 130px 6% 52px; max-width: 1200px; margin: 0 auto; }
@@ -794,39 +567,23 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
 .fc { font-size: 12px; color: var(--muted); }
 
 /* ── Keyframes ──────────────────────────────────────────────────────────── */
-@keyframes floatArc { 0%, 100% { transform: translateY(-48%); } 50% { transform: translateY(calc(-48% - 18px)); } }
 @keyframes floatMascot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+/* The hero's scroll cue: a bead of amber running down a hairline. */
+@keyframes scroll-cue { from { transform: translateY(-100%); } to { transform: translateY(200%); } }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes shimmer { 0%, 100% { opacity: .5; } 50% { opacity: .8; } }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: 1000px) {
-  /* Stacked, the pitch would otherwise stretch to twice the paragraph's width. */
-  .app-inner { grid-template-columns: 1fr; gap: 48px; padding: 88px 6%; }
-  .edge-scallop { --r: 18px; }
-  .edge-ticket { --r: 10px; }
-  .app-pitch { max-width: 620px; }
-  .phone-stage { min-height: 520px; }
-}
 @media (max-width: 900px) {
-  /* The floating pushes swing in over the phone once the stage narrows. */
-  .push { display: none; }
-  .hero { flex-direction: column; gap: 70px; padding-top: 110px; }
-  .hero-left { width: 100%; }
-  /* The card arc is a desktop device — the Products deck carries the cards on
-     a phone, and shuffling them in two places at once is noise. */
-  .hero-right { display: none; }
   .nav-links, .nav-right .btn-g { display: none; }
   .nav-burger { display: flex; }
-  .step { grid-template-columns: 1fr; gap: 8px; padding: 40px 0; }
-  .step-n { line-height: 1; }
 }
 @media (max-width: 780px) {
   .pack-show { grid-template-columns: 1fr; }
   .pack-show-media { min-height: 230px; }
   .pack-show-body { padding: 26px 22px 24px; }
   .pack-list { grid-template-columns: 1fr; }
-  .section, .packs-inner, .app-inner, .testi { padding-top: 72px; padding-bottom: 72px; }
+  .section, .packs-inner { padding-top: 72px; padding-bottom: 72px; }
 }
 @media (max-width: 640px) {
   /* The server renders the fan and the client swaps in the deck; matching the
@@ -837,14 +594,6 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   /* One field per row once the panel is narrow. */
   .wl-row.col-6 { grid-column: span 12; }
-}
-@media (max-width: 520px) {
-  .hero-proof { gap: 12px; }
-  /* Resize rather than scale — a transform leaves the old box reserved. */
-  .phone { width: 244px; height: 492px; border-radius: 41px; padding: 10px; }
-  .phone-screen { border-radius: 32px; }
-  .phone-stage { min-height: 500px; }
-  .phone-toast { top: 94px; }
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
