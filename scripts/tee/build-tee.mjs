@@ -69,10 +69,10 @@ const P_HEM = ROLL_P + (LENGTH - ROLL)
 const ARMPIT = 0.82
 /** How far each panel stops short of the side seam at the armhole's widest. */
 const ARMHOLE_GAP = 0.3
-const NECK_HALF = 0.38
+const NECK_HALF = 0.34
 /** How far the neckline dips below the shoulder line, measured straight down. */
-const FRONT_DROP = 0.26
-const BACK_DROP = 0.07
+const FRONT_DROP = 0.24
+const BACK_DROP = 0.1
 const WALL = 0.016
 const BAND = 0.09
 const SLEEVE = { dir: [0.55, -0.835, 0.03], length: 0.72, rx: 0.33, rz: 0.28 }
@@ -85,7 +85,9 @@ const BAND_POINTS = 96
 /** Hem and cuff detail rows: distance from the edge, and stitch weight. Double-needle stitching. */
 const HEM_ROWS = [[0.075, 0.3], [0.058, 1], [0.049, 0], [0.04, 1], [0.022, 0], [0.008, 0], [0, 0]]
 
-const ridgeY = x => NECK_Y - SHOULDER_DROP * Math.pow(smoothstep(0.18, 1.0, Math.abs(x)), 1.3)
+// The shoulder starts sloping where the collar ends, so the line runs out of the
+// neckband in one curve. Starting it further in left a flat top with a bend in it.
+const ridgeY = x => NECK_Y - SHOULDER_DROP * Math.pow(smoothstep(NECK_HALF * 0.9, 1.02, Math.abs(x)), 1.15)
 const sectionLength = (a, b) => 2 * (b - CORNER) + Math.PI * CORNER + 2 * (a - CORNER)
 
 /** A point on the front half of a rounded-rectangle section, by arc length from the left side. */
@@ -121,7 +123,9 @@ const armholeGap = p => (p < ARMPIT ? ARMHOLE_GAP * Math.pow(Math.sin((Math.PI *
 function neckTop(sigma, x) {
   const u = Math.abs(x) / NECK_HALF
   if (u >= 1) return 0
-  const drop = (sigma > 0 ? FRONT_DROP : BACK_DROP) * Math.pow(1 - u * u, 0.6)
+  // Exponent 1: the curve meets the shoulder seam at a slope it can leave on.
+  // Below 1 it arrives vertically, which cusps into a peak either side of the collar.
+  const drop = (sigma > 0 ? FRONT_DROP : BACK_DROP) * (1 - u * u)
   if (drop < ROLL) return ((ROLL_P * 2) / Math.PI) * Math.acos(1 - drop / ROLL)
   return ROLL_P + (drop - ROLL)
 }
@@ -215,7 +219,10 @@ function buildPanel(sigma) {
     const mirror = Math.min(i, COLUMNS - i)
     tops.push(neckTop(sigma, bodyAt(sigma, -1 + (2 * mirror) / COLUMNS, 0).pos[0]))
   }
-  for (let pass = 0; pass < 3; pass++) {
+  // Enough passes to round off where the neckline meets the shoulder seam. That
+  // corner is a kink in the pattern, and the neckband, sewn along this edge,
+  // turns it into a tab sticking out at each shoulder.
+  for (let pass = 0; pass < 9; pass++) {
     tops = tops.map((t, i) => (i === 0 || i === W - 1 ? t : 0.25 * tops[i - 1] + 0.5 * t + 0.25 * tops[i + 1]))
   }
   const pts = []
@@ -606,20 +613,28 @@ for (const sleeve of [right, left]) {
   // Frames round the loop, smoothed over neighbours so the band can't twist at
   // the corners. The band's direction is carried continuously point to point
   // from the front centre, where it must rise toward the neck opening.
+  // The band's width runs from the neck edge inward, toward the middle of the
+  // opening, lying in the cloth's own surface: that is what makes a ring of rib
+  // round the hole, and it needs no sign to be carried round the loop. Taken
+  // square to the edge instead, it fanned outward into a flat brim at the sides,
+  // fins above the back, and a pinch where the two sides met at the front.
+  const centre = scale(
+    loop.reduce((sum, q) => add(sum, q), [0, 0, 0]),
+    1 / M,
+  )
   const raw = loop.map((q, m) => {
+    const n = loopNormals[m]
     const tangent = normalize(sub(loop[(m + 1) % M], loop[(m - 1 + M) % M]))
-    return { n: loopNormals[m], d: normalize(cross(tangent, loopNormals[m])) }
+    // Square to the edge and lying in the cloth's surface, then turned to face
+    // the middle of the opening. Aimed straight at the centre instead, it
+    // collapses to nothing at the back of the neck — where that direction is the
+    // surface normal — and knots the band there.
+    const d = normalize(cross(tangent, n))
+    return { n, d: dot(d, sub(centre, q)) < 0 ? scale(d, -1) : d }
   })
-  let frontCentre = 0
-  loop.forEach((q, m) => {
-    if (q[2] > 0 && q[1] < loop[frontCentre][1]) frontCentre = m
-  })
-  if (raw[frontCentre].d[1] < 0) raw[frontCentre].d = scale(raw[frontCentre].d, -1)
-  for (let step = 1; step < M; step++) {
-    const m = (frontCentre + step) % M
-    if (dot(raw[m].d, raw[(m - 1 + M) % M].d) < 0) raw[m].d = scale(raw[m].d, -1)
-  }
-  const SPAN = 3
+  // Wide enough to carry the band round the corner where the front and back neck
+  // curves meet at the shoulder, which otherwise juts out as a flat tab.
+  const SPAN = 7
   const frames = loop.map((q, m) => {
     let n = [0, 0, 0]
     let d = [0, 0, 0]
@@ -632,7 +647,8 @@ for (const sleeve of [right, left]) {
     d = normalize(sub(d, scale(n, dot(d, n))))
     return { q, n, d }
   })
-  const outerAt = ({ q, n, d }, k) => add(add(q, scale(d, (BAND * k) / K)), scale(n, (0.004 * k) / K))
+  // The band stands a little proud of the panel, the way a sewn-on rib does.
+  const outerAt = ({ q, n, d }, k) => add(add(q, scale(d, (BAND * k) / K)), scale(n, (0.007 * k) / K))
 
   let row = 0
   for (let k = 0; k <= K; k++, row++) frames.forEach((f, m) => push(outerAt(f, k), f.n, m, row, false, k === 0 ? 0.8 : 0))

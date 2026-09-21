@@ -5,3 +5,20 @@ out/
 .env.local
 .env.production
 *.tsbuildinfo
+
+# Full-size source photos. Only the resized versions beside them are loaded by
+# the site; keeping the originals out of git keeps the repo clonable.
+public/assets/still-life-cosmetic-products.jpg
+public/assets/medium-shot-man-painting-watercolors.jpg
+public/assets/front-view-queer-person-work.jpg
+public/assets/yellow-model-career-kit-arrangement.jpg
+public/assets/white-tote-bag-pink-background.jpg
+public/assets/african-american-staff-members-consulting-each-other-monthly-reports-reviewing-kpi-data-insights.jpg
+public/assets/close-up-man-selfcare-products.jpg
+public/assets/close-up-man-selfcare-products(1).jpg
+public/assets/woman-does-video-call-local-store.jpg
+public/assets/store-with-fresh-organic-products.jpg
+public/assets/piggy-bank-money-coin-savings-concept-pink-background-3d-rendering-removebg-preview.png
+public/assets/Susana Bettencourt - 327 creative studio.jpg
+public/assets/—Pngtree—modern smartphone with blank white_23710209.png
+public/assets/🧰 How To Print On Canvas Tote Bags tips for your Classic Onboarding Box.jpg

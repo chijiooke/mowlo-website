@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { Nav } from '@/components/Nav'
-import { Hero } from '@/components/sections/hero/Hero'
+import { Landing } from '@/components/sections/landing/Landing'
+import { Audience } from '@/components/sections/audience/Audience'
+import { Parade } from '@/components/sections/parade/Parade'
+import { Quality } from '@/components/sections/quality/Quality'
 import { TrustBar } from '@/components/TrustBar'
 import { HowItWorks } from '@/components/sections/how-it-works/HowItWorks'
 import { ProductsSection } from '@/components/ProductsSection'
@@ -20,10 +23,16 @@ export default function HomePage() {
     <ImmersiveRoot>
       <SmoothScroll />
       <Nav />
-      <Hero />
-      <TrustBar />
-      <HowItWorks />
+      {/* The landing names the brand; the audience cards ask who is printing;
+          then the parade shows what comes out, and the product list names it all. */}
+      <Landing />
+      <Audience />
+      <Parade />
       <ProductsSection />
+      {/* Then the promise about how it comes out. */}
+      <Quality />
+      <HowItWorks />
+      <TrustBar />
       <BrandPacks />
       <MobileApp />
       <FinalCTA />

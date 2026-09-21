@@ -1,4 +1,4 @@
-import { CanvasTexture, NoColorSpace, RepeatWrapping, SRGBColorSpace } from 'three'
+import { CanvasTexture, NoColorSpace, RepeatWrapping, SRGBColorSpace, TextureLoader, type Texture } from 'three'
 import { MOWLO_BODY_PATH } from '@/components/MowloLogo'
 
 /**
@@ -10,6 +10,9 @@ import { MOWLO_BODY_PATH } from '@/components/MowloLogo'
  */
 
 export type Face = 'card-front' | 'card-back' | 'sheet' | 'mascot' | 'badge' | 'flyer' | 'bag' | 'mug' | 'tee'
+
+/** What the badge is printed on. */
+export type BadgeGround = 'pink' | 'ink' | 'teal'
 
 /** Pixel size at scale 1, in the proportions of the surface each face wraps. */
 const SIZES: Record<Face, [number, number]> = {
@@ -40,6 +43,9 @@ const C = {
   kraft: '#C49A6C',
   ceramic: '#F4F2EE',
 }
+
+/** The grounds a badge can be printed on, by name. */
+const GROUNDS: Record<BadgeGround, string> = { pink: C.pink, ink: C.ink, teal: C.teal }
 
 /** The mascot's art inside its 80 × 80 viewBox (brand guide §3). */
 export const MASCOT_BOUNDS = { x: 1.45, y: 5.19, w: 76.91, h: 69.78 }
@@ -266,7 +272,7 @@ function mascotToBounds(ctx: Ctx, w: number, h: number, bodyColour: string, with
 
 // ── Faces ─────────────────────────────────────────────────────────────────
 
-type Draw = (ctx: Ctx, w: number, h: number) => void
+type Draw = (ctx: Ctx, w: number, h: number, ground?: BadgeGround) => void
 
 const PRINTED: Record<Face, Draw> = {
   'card-front': (ctx, w, h) => {
@@ -308,21 +314,24 @@ const PRINTED: Record<Face, Draw> = {
 
   mascot: (ctx, w, h) => mascotToBounds(ctx, w, h, C.amber, true),
 
-  badge: (ctx, w, h) => {
+  badge: (ctx, w, h, ground = 'pink') => {
     const r = w / 2
+    const dark = ground === 'ink'
     ctx.save()
     ctx.beginPath()
     ctx.arc(r, r, r, 0, Math.PI * 2)
     ctx.clip()
-    fill(ctx, w, h, C.pink)
-    stripes(ctx, w, h, 'rgba(10, 10, 11, 0.08)', w * 0.02, w * 0.04, Math.PI / 4)
+    fill(ctx, w, h, GROUNDS[ground])
+    // The stripes and the wordmark swap with the ground — both are drawn in ink,
+    // which disappears on an ink badge.
+    stripes(ctx, w, h, dark ? 'rgba(240, 237, 232, 0.1)' : 'rgba(10, 10, 11, 0.08)', w * 0.02, w * 0.04, Math.PI / 4)
     ctx.strokeStyle = C.bone
     ctx.lineWidth = w * 0.014
     ctx.beginPath()
     ctx.arc(r, r, r * 0.84, 0, Math.PI * 2)
     ctx.stroke()
     mascot(ctx, r, r * 0.8, r * 0.8)
-    wordmark(ctx, r, r * 1.45, r * 0.3, C.ink, 'center')
+    wordmark(ctx, r, r * 1.45, r * 0.3, dark ? C.bone : C.ink, 'center')
     ctx.restore()
   },
 
@@ -390,12 +399,12 @@ const BLANK: Record<Face, Draw> = {
   tee: () => {}, // unprinted: no ink at all
 }
 
-function draw(canvas: HTMLCanvasElement, face: Face, printed: boolean) {
+function draw(canvas: HTMLCanvasElement, face: Face, printed: boolean, ground?: BadgeGround) {
   const ctx = canvas.getContext('2d') as Ctx
   const { width: w, height: h } = canvas
   ctx.save()
   ctx.clearRect(0, 0, w, h)
-  ;(printed ? PRINTED : BLANK)[face](ctx, w, h)
+  ;(printed ? PRINTED : BLANK)[face](ctx, w, h, ground)
   ctx.restore()
 }
 
@@ -406,6 +415,8 @@ export interface FaceOptions {
   printed: boolean
   /** 1 on phones, 2 for crisp desktop close-ups. */
   scale?: 1 | 2
+  /** Badge only: what it is printed on. Default pink. */
+  ground?: BadgeGround
 }
 
 const cache = new Map<string, CanvasTexture>()
@@ -415,8 +426,8 @@ const cache = new Map<string, CanvasTexture>()
  * then redrawn when the web fonts land, so no frame waits on them. Cached
  * textures are shared: never dispose one from a component.
  */
-export function faceTexture(face: Face, { printed, scale = 1 }: FaceOptions): CanvasTexture {
-  const key = `${face}|${printed ? 'printed' : 'blank'}|${scale}`
+export function faceTexture(face: Face, { printed, scale = 1, ground = 'pink' }: FaceOptions): CanvasTexture {
+  const key = `${face}|${printed ? 'printed' : 'blank'}|${scale}|${ground}`
   const hit = cache.get(key)
   if (hit) return hit
 
@@ -424,7 +435,7 @@ export function faceTexture(face: Face, { printed, scale = 1 }: FaceOptions): Ca
   const canvas = document.createElement('canvas')
   canvas.width = w * scale
   canvas.height = h * scale
-  draw(canvas, face, printed)
+  draw(canvas, face, printed, ground)
 
   const texture = new CanvasTexture(canvas)
   texture.colorSpace = SRGBColorSpace
@@ -432,11 +443,25 @@ export function faceTexture(face: Face, { printed, scale = 1 }: FaceOptions): Ca
 
   if (printed) {
     document.fonts.ready.then(() => {
-      draw(canvas, face, printed)
+      draw(canvas, face, printed, ground)
       texture.needsUpdate = true
     })
   }
   return texture
+}
+
+let photo: Texture | null = null
+
+/**
+ * The photographed crumpled sheet. Relief rather than colour — no colour space —
+ * for surfaces that should carry real creases instead of paperBump's fine grain.
+ */
+export function paperPhoto(): Texture {
+  if (photo) return photo
+  photo = new TextureLoader().load('/assets/paper-crumpled.jpg')
+  photo.colorSpace = NoColorSpace
+  photo.wrapS = photo.wrapT = RepeatWrapping
+  return photo
 }
 
 let bump: CanvasTexture | null = null

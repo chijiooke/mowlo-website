@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     'brand packs Ghana',
     'AI brand design',
     'print shop Nigeria',
-    'one-tap print approval',
+    'reorder print online',
   ],
   authors: [{ name: 'Mowlo' }],
   creator: 'Mowlo',

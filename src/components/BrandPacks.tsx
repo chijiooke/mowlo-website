@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import { Reveal } from './Reveal'
+import { SavingsPig } from './SavingsPig'
 import { WaitlistCTA } from './WaitlistForm'
+import { Stamp } from './ui/Stamp'
 
 /**
  * One card, one message: printing together costs less than printing one thing
@@ -27,7 +29,7 @@ const BUNDLE = {
 export function BrandPacks() {
   return (
     <section id="packs" className="packs-bg">
-      <div className="packs-inner">
+      <div className="packs-inner relative">
         <Reveal>
           <span className="sec-label">Brand Packs</span>
         </Reveal>
@@ -46,33 +48,43 @@ export function BrandPacks() {
         </Reveal>
 
         <Reveal delay={0.15}>
-          <div className="pack-show">
-            <div className="pack-show-media">
-              <Image
-                src={BUNDLE.photo.src}
-                alt={BUNDLE.photo.alt}
-                fill
-                sizes="(max-width: 880px) 100vw, 44vw"
-                className="pack-show-img"
-              />
-            </div>
+          {/* The stamp is pressed onto the card's top corner, half on and half
+              off it, the way the Quality chapter's sits on the phone. The card
+              clips its own contents, so the stamp hangs outside it. */}
+          <div className="relative">
+            <Stamp
+              text="Spend less · Get more ·"
+              className="absolute -top-12 -right-8 z-10 size-28 md:-top-14 md:-right-14 md:size-36"
+              center={<SavingsPig />}
+            />
+            <div className="pack-show">
+              <div className="pack-show-media">
+                <Image
+                  src={BUNDLE.photo.src}
+                  alt={BUNDLE.photo.alt}
+                  fill
+                  sizes="(max-width: 880px) 100vw, 44vw"
+                  className="pack-show-img"
+                />
+              </div>
 
-            <div className="pack-show-body">
-              <div className="pack-tier">{BUNDLE.eyebrow}</div>
-              <h3 className="pack-name">{BUNDLE.name}</h3>
-              <p className="pack-note">{BUNDLE.note}</p>
+              <div className="pack-show-body">
+                <div className="pack-tier">{BUNDLE.eyebrow}</div>
+                <h3 className="pack-name">{BUNDLE.name}</h3>
+                <p className="pack-note">{BUNDLE.note}</p>
 
-              <ul className="pack-list">
-                {BUNDLE.items.map(i => (
-                  <li key={i}>{i}</li>
-                ))}
-              </ul>
+                <ul className="pack-list">
+                  {BUNDLE.items.map(i => (
+                    <li key={i}>{i}</li>
+                  ))}
+                </ul>
 
-              <WaitlistCTA className="pack-btn" label="Join waitlist for bundles →" source="brand-packs" />
+                <WaitlistCTA className="pack-btn" label="Download the app →" source="brand-packs" />
 
-              <p className="pack-alt">
-                Three sizes — the bigger the bundle, the bigger the saving.
-              </p>
+                <p className="pack-alt">
+                  Three sizes — the bigger the bundle, the bigger the saving.
+                </p>
+              </div>
             </div>
           </div>
         </Reveal>

@@ -13,8 +13,6 @@ import { useReduce } from '@/lib/motion'
 
 interface Step {
   n: string
-  /** The step's own brand colour — numeral, rule and first pill. */
-  colour: string
   title: string[]
   body: string
   tags: string[]
@@ -24,34 +22,31 @@ interface Step {
 const STEPS: Step[] = [
   {
     n: '01',
-    colour: 'var(--color-amber)',
     title: ['Pick your product'],
     body: 'Stickers, business cards, flyers, thank-you cards, tees — one at a time, or a bundle that costs less than the pieces on their own. Order 25 or 500; no minimum that eats your profit.',
     tags: ['Stickers', 'Business cards', 'Flyers', 'Bundles'],
     photo: {
-      src: '/assets/vecteezy_colorful-paper-shopping-bags_27614808.jpg',
-      alt: 'A row of colourful paper shopping bags',
+      src: '/assets/how-product.jpg',
+      alt: 'Notebook, tubes and cases laid out on a yellow surface',
       position: 'object-center',
     },
   },
   {
     n: '02',
-    colour: 'var(--color-teal)',
     title: ['Add your design —', 'or let AI draw it'],
     body: 'Upload the designs you already have. No designs? Answer five questions and our AI designer draws your logo, colour palette and print-ready layouts in minutes — no designer, no trip to Computer Village.',
     tags: ['Upload your own', 'AI designer', 'Saved brand profile'],
     photo: {
-      src: '/assets/man-working-animation-studio.jpg',
-      alt: 'A designer drawing on a pen tablet in front of a large screen',
-      position: 'object-[60%_50%]',
+      src: '/assets/how-design.jpg',
+      alt: 'A designer working on a large screen at a desk',
+      position: 'object-[55%_50%]',
     },
   },
   {
     n: '03',
-    colour: 'var(--color-pink)',
     title: ['Track it', 'to your door'],
-    body: 'Approve your proof with one tap and we go straight to print. Then follow it the whole way — from the press to the rider at your gate. 24hrs in Lagos, 2–3 days across Nigeria and Ghana.',
-    tags: ['One-tap proofing', 'Live tracking', '24hr Lagos'],
+    body: 'Place the order in one tap and we go straight to print. Then follow it the whole way — from the press to the rider at your gate. 24hrs in Lagos, 2–3 days across Nigeria and Ghana.',
+    tags: ['One-tap ordering', 'Live tracking', '24hr Lagos'],
     photo: {
       src: '/assets/delivery-man.jpeg',
       alt: 'A smiling delivery rider holding a parcel',
@@ -60,20 +55,11 @@ const STEPS: Step[] = [
   },
 ]
 
-/** Pills take the brand colours in turn, each step starting on its own. */
-const PILLS = [
-  'bg-amber text-ink',
-  'bg-teal text-ink',
-  'bg-pink text-ink',
-  'bg-sky text-ink',
-  'bg-lime text-ink',
-  'bg-purple text-white',
-]
-
 /**
- * Chapter — How it works. Three steps, each in its own brand colour from the
- * start: the numeral fills with it as the step scrolls in, the photo opens out
- * of a frame, and the pills land like stickers.
+ * Chapter — How it works. Three steps under one accent, not three: the numeral
+ * fills with amber as the step scrolls in, the photo opens out of a frame, and
+ * the tags stay quiet outlines. Six sticker colours down one column read as a
+ * paint chart and pulled the eye off the photographs.
  */
 export function HowItWorks() {
   return (
@@ -81,9 +67,15 @@ export function HowItWorks() {
       <Container>
         <header className="mb-20 md:mb-28">
           <Eyebrow className="mb-5 text-amber">How it works</Eyebrow>
-          <h2 className="font-display text-poster font-condensed">
-            <span className="block">Three steps.</span>
-            <ColorSplitText text="No wahala." delay={0.15} />
+          {/* The gap is in em, so it grows with type that runs from 48px to 136px;
+              a fixed margin looked right on a laptop and cramped on a phone. The
+              space between the spans is real whitespace, so the heading reads and
+              copies as two sentences rather than "Three steps.No wahala." */}
+          <h2 className="font-display text-poster leading-[1] font-condensed">
+            <span className="block">Three steps.</span>{' '}
+            <span className="mt-[0.24em] block">
+              <ColorSplitText text="No wahala." delay={0.15} />
+            </span>
           </h2>
           <p className="mt-6 max-w-[34rem] text-lead text-bone/60">
             A three-day, four-person errand, collapsed into a phone flow.
@@ -119,7 +111,7 @@ function StepRow({ step, index }: { step: Step; index: number }) {
   const flip = index % 2 === 1
 
   return (
-    <li ref={ref} style={{ ['--step' as string]: step.colour }} className="relative grid items-center gap-10 md:grid-cols-12 md:gap-12">
+    <li ref={ref} className="relative grid items-center gap-10 md:grid-cols-12 md:gap-12">
       {/* Photo, with the numeral overlapping its corner */}
       <div className={clsx('relative md:col-span-6', flip ? 'md:order-2 md:col-start-7' : 'md:col-start-1')}>
         <div className="relative aspect-[4/3] w-full">
@@ -143,8 +135,8 @@ function StepRow({ step, index }: { step: Step; index: number }) {
               flip ? 'right-4 md:-right-[0.12em]' : 'left-4 md:-left-[0.12em]',
             )}
           >
-            <span className="text-transparent [-webkit-text-stroke:2px_var(--step)]">{step.n}</span>
-            <motion.span style={{ clipPath: fill }} className="absolute inset-0 text-(color:--step)">
+            <span className="text-transparent [-webkit-text-stroke:2px_rgba(240,237,232,0.22)]">{step.n}</span>
+            <motion.span style={{ clipPath: fill }} className="absolute inset-0 text-amber">
               {step.n}
             </motion.span>
           </span>
@@ -153,28 +145,25 @@ function StepRow({ step, index }: { step: Step; index: number }) {
 
       {/* Copy */}
       <div className={clsx('md:col-span-5', flip ? 'md:order-1 md:col-start-1' : 'md:col-start-8')}>
-        <motion.span style={{ scaleX: rule }} className="mb-6 block h-1 w-16 origin-left rounded-full bg-(--step)" />
+        <motion.span style={{ scaleX: rule }} className="mb-6 block h-1 w-16 origin-left rounded-full bg-amber" />
         <SplitReveal as="h3" lines={step.title} className="mb-5 font-display text-title font-semicondensed" />
         <p className="max-w-[30rem] text-base leading-relaxed text-bone/65 md:text-lg">{step.body}</p>
-        <Pills tags={step.tags} start={index} />
+        <Pills tags={step.tags} />
       </div>
     </li>
   )
 }
 
 const pill: Variants = {
-  hidden: { opacity: 0, scale: 0.55, y: 12, rotate: 0 },
+  hidden: { opacity: 0, y: 10 },
   visible: (i: number) => ({
     opacity: 1,
-    scale: 1,
     y: 0,
-    // A slight alternating tilt, like stickers slapped on by hand.
-    rotate: i % 2 ? 2.5 : -2.5,
-    transition: { type: 'spring', stiffness: 520, damping: 15, delay: 0.3 + i * 0.08 },
+    transition: { type: 'spring', stiffness: 420, damping: 24, delay: 0.25 + i * 0.07 },
   }),
 }
 
-function Pills({ tags, start }: { tags: string[]; start: number }) {
+function Pills({ tags }: { tags: string[] }) {
   const reduce = useReduce()
 
   return (
@@ -189,11 +178,7 @@ function Pills({ tags, start }: { tags: string[]; start: number }) {
           key={tag}
           custom={i}
           variants={pill}
-          whileHover={{ rotate: 0, scale: 1.06 }}
-          className={clsx(
-            'cursor-default rounded-full px-4 py-2 text-sm font-bold shadow-[0_8px_20px_rgba(0,0,0,0.3)]',
-            PILLS[(start + i) % PILLS.length],
-          )}
+          className="cursor-default rounded-full border border-bone/15 px-4 py-2 text-sm font-semibold text-bone/70"
         >
           {tag}
         </motion.li>

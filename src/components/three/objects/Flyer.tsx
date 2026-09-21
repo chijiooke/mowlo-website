@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { BackSide, MeshStandardMaterial, PlaneGeometry } from 'three'
-import { faceTexture, paperBump } from '@/lib/three/brandTexture'
+import { faceTexture, paperPhoto } from '@/lib/three/brandTexture'
 import { curlSheet } from '@/lib/three/geometry'
 import { createPrintMaterial } from '@/lib/three/printMaterial'
 import type { Live } from './live'
@@ -24,8 +24,10 @@ export function Flyer({ live }: { live: Live }) {
   const materials = useMemo(
     () => ({
       front: createPrintMaterial(faceTexture('flyer', { printed: false }), faceTexture('flyer', { printed: true }), live.print, 'matte', {
-        bumpMap: paperBump(),
-        bumpScale: 0.8,
+        // The photographed sheet, so the flyer carries real creases under the
+        // studio lights rather than paperBump's even grain.
+        bumpMap: paperPhoto(),
+        bumpScale: 3.4,
       }),
       back: new MeshStandardMaterial({ color: '#F2EFE9', roughness: 0.95, side: BackSide }),
     }),

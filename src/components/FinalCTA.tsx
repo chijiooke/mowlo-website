@@ -30,7 +30,7 @@ export function FinalCTA() {
       </Reveal>
       <Reveal delay={0.1}>
         <div style={{ display: 'flex', gap: 13, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <WaitlistCTA className="btn-hp" label="Join the waitlist →" source="final-cta" />
+          <WaitlistCTA className="btn-hp" label="Download the app →" source="final-cta" />
         </div>
       </Reveal>
     </section>

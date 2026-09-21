@@ -33,6 +33,11 @@ export default function ViewSlot({
 
   // The canvas renders on demand; keep frames coming only while this box is on
   // screen. Off screen, nothing asks and the GPU idles.
+  //
+  // Stopping the loop is what leaves a frame on screen, so every stop — going
+  // off screen, and unmounting — asks for one more frame after it. Stage clears
+  // the canvas at the top of every frame, so that last frame is what wipes what
+  // this view was drawing and redraws the views still on screen.
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -43,12 +48,14 @@ export default function ViewSlot({
     }
     const io = new IntersectionObserver(([entry]) => {
       cancelAnimationFrame(raf)
+      invalidate()
       if (entry.isIntersecting) loop()
     })
     io.observe(el)
     return () => {
       io.disconnect()
       cancelAnimationFrame(raf)
+      invalidate()
     }
   }, [])
 

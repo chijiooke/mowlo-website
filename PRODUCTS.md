@@ -76,7 +76,6 @@ Everything needed for a proper market stall or event, printed and delivered befo
 - **AI Brand Kit** — Answer 5 questions; get a logo, colour palette, and print-ready designs instantly. No designer needed.
 - **Flexible quantities** — Order as few as 25 units. Start small, reorder as you grow.
 - **24hr Lagos delivery** — Order by noon, get it tomorrow. 2–3 days nationwide and Ghana.
-- **WhatsApp proofing** — Proof sent to WhatsApp; approve with one tap. No email or login needed.
 - **One-tap reorders** — Designs are saved. Reorder from your dashboard without redesigning.
 - **Saved brand profile** — Logo, colours, and style stored permanently. Every new order starts pre-branded.
 

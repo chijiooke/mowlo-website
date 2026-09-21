@@ -127,6 +127,28 @@ export function printedExtrude(shapes: Shape | Shape[], { depth, bevel = 0, beve
   return geometry
 }
 
+/**
+ * Curls one edge of a flat disc up out of its plane: everything past the chord
+ * at `from` (a share of the radius) bends round a cylinder, so the edge lifts
+ * the way a sticker does when it starts to peel. The mesh needs rings between
+ * the chord and the rim, or the curl creases into facets.
+ */
+export function foldEdge(geometry: BufferGeometry, radius: number, from: number, angle: number) {
+  if (angle <= 0) return geometry
+  const chord = radius * from
+  const curvature = angle / (radius - chord)
+  const pos = geometry.attributes.position
+  for (let i = 0; i < pos.count; i++) {
+    const past = pos.getX(i) - chord
+    if (past <= 0) continue
+    pos.setX(i, chord + Math.sin(curvature * past) / curvature)
+    pos.setZ(i, pos.getZ(i) + (1 - Math.cos(curvature * past)) / curvature)
+  }
+  pos.needsUpdate = true
+  geometry.computeVertexNormals()
+  return geometry
+}
+
 /** A die-cut mascot, `size` units wide, centred. Slots as printedExtrude. */
 export function mascotGeometry(size: number, depth: number, bevel: number): BufferGeometry {
   // Extrude in SVG units, then scale down: bevel and depth scale with it.

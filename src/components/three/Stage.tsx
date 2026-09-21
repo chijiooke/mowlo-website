@@ -1,8 +1,38 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { View } from '@react-three/drei'
 import { TIER_DPR, type QualityTier } from '@/lib/three/quality'
+
+/**
+ * Wipes the canvas at the top of every frame.
+ *
+ * Nothing in three.js erases this canvas: a drei <View> renders its region with
+ * autoClear off, and only clears a region on the way *in*, never on the way
+ * out. What actually erases it is the browser, which drops the drawing buffer
+ * once it has composited a frame — and it only composites a frame in which
+ * something was drawn. So a frame where every view has nothing to draw (a
+ * product between beats, the parade after the last one has flown out) issues no
+ * GL call at all, nothing is composited, and the last frame that *did* draw
+ * stays on screen: a product frozen over whatever scrolls under the fixed
+ * canvas. Clearing here makes every frame start from nothing, and makes every
+ * frame a frame the browser composites.
+ *
+ * Priority 0 runs before the views, which subscribe at 1, and leaves r3f's
+ * manual-render flag to them.
+ */
+function ClearFrame() {
+  const gl = useThree(state => state.gl)
+
+  useFrame(() => {
+    // A render target left bound by a view would swallow the clear.
+    gl.setRenderTarget(null)
+    gl.setScissorTest(false)
+    gl.clear(true, true)
+  }, 0)
+
+  return null
+}
 
 /**
  * The page's only WebGL canvas. Fixed over the viewport and click-through;
@@ -25,6 +55,7 @@ export default function Stage({ tier }: { tier: Exclude<QualityTier, 'poster'> }
       frameloop="demand"
       gl={{ antialias: tier === 'high', alpha: true, powerPreference: 'high-performance' }}
     >
+      <ClearFrame />
       <View.Port />
     </Canvas>
   )

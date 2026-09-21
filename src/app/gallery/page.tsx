@@ -62,7 +62,7 @@ export default function GalleryPage() {
           <p>No capital, no stock. Upload once — we print, deliver, and pay you out.</p>
         </Reveal>
         <Reveal delay={0.1}>
-          <WaitlistCTA className="btn-hp" label="Join the waitlist →" source="gallery-page" />
+          <WaitlistCTA className="btn-hp" label="Download the app →" source="gallery-page" />
         </Reveal>
       </div>
 

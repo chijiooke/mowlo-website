@@ -74,7 +74,7 @@ interface CTAProps {
 }
 
 /** A button that opens the shared waitlist dialog. */
-export function WaitlistCTA({ source = 'mobile-app', className = 'btn-wl', label = 'Join waitlist →' }: CTAProps) {
+export function WaitlistCTA({ source = 'mobile-app', className = 'btn-wl', label = 'Download the app →' }: CTAProps) {
   const open = useWaitlist()
 
   return (
@@ -167,10 +167,10 @@ function WaitlistModal({ open, onClose, source }: { open: boolean; onClose: () =
             </button>
 
             <h2 id="wl-modal-title" className="wl-title">
-              Join the waitlist
+              Be the first to know.
             </h2>
             <p className="wl-intro">
-              We&apos;ll message you the day the app drops — nothing else, ever.
+              Join our waitlist and we&apos;ll message you the day the app drops — nothing else, ever.
             </p>
 
             <WaitlistForm source={source} />

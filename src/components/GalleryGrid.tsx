@@ -244,7 +244,7 @@ function Lightbox({ item, onClose }: { item: GalleryItem | null; onClose: () => 
               </p>
               <WaitlistCTA
                 className="pack-btn lb-cta"
-                label="Join waitlist to print this →"
+                label="Download the app →"
                 source="gallery-lightbox"
               />
             </div>

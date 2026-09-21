@@ -8,7 +8,7 @@ import { PrintedSlab } from './PrintedSlab'
 import type { Live } from './live'
 
 /**
- * A thick business card with painted amber edges. In its spotlight it flips to
+ * A business card with painted amber edges, at about real stock thickness. In its spotlight it flips to
  * the back while the finish runs matte → glossy → holographic, so the light
  * sweeping across it shows each one.
  */
@@ -34,9 +34,9 @@ export function BusinessCard({ live, textureScale = 1 }: { live: Live; textureSc
       <PrintedSlab
         width={3.4}
         height={2.2}
-        depth={0.05}
+        depth={0.02}
         radius={0.1}
-        bevel={0.012}
+        bevel={0.005}
         front="card-front"
         back="card-back"
         edge="#F5A623"

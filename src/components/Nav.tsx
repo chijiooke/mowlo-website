@@ -9,10 +9,11 @@ import { WaitlistCTA } from './WaitlistForm'
 
 /* Gallery and Print partners are hidden from the nav for now — the pages are
    still reachable by URL and from the footer. */
+/* In the order the sections appear on the page. */
 const LINKS = [
+  { href: '/#how', label: 'How it works' },
   { href: '/#products', label: 'Products' },
   { href: '/#packs', label: 'Brand Packs' },
-  { href: '/#how', label: 'How it works' },
   { href: '/#app', label: 'Mobile app' },
 ]
 
@@ -36,7 +37,7 @@ export function Nav() {
         </div>
 
         <div className="nav-right">
-          <WaitlistCTA className="btn-a" label="Join waitlist" source="nav" />
+          <WaitlistCTA className="btn-a" label="Download the app" source="nav" />
           <button
             type="button"
             className="nav-burger"
@@ -63,7 +64,7 @@ export function Nav() {
                 {l.label}
               </Link>
             ))}
-            <WaitlistCTA className="btn-a" label="Join waitlist →" source="nav-drawer" />
+            <WaitlistCTA className="btn-a" label="Download the app →" source="nav-drawer" />
           </motion.div>
         )}
       </AnimatePresence>
