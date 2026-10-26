@@ -20,12 +20,15 @@ export function Stamp({
   text,
   icon = 'lucide:check',
   center,
+  disc = 'fill-teal',
   className,
 }: {
   text: string
   icon?: string
   /** Replaces the icon in the middle. */
   center?: ReactNode
+  /** The disc's fill class. Teal by default; pass another when it sits on teal. */
+  disc?: string
   className?: string
 }) {
   // Scoped, because two stamps on one page would otherwise share a path id.
@@ -37,7 +40,7 @@ export function Stamp({
         <defs>
           <path id={ring} fill="none" d="M50,50 m-34,0 a34,34 0 1,1 68,0 a34,34 0 1,1 -68,0" />
         </defs>
-        <circle cx="50" cy="50" r="48" className="fill-teal" />
+        <circle cx="50" cy="50" r="48" className={disc} />
         <text className="fill-ink text-[8px] font-bold uppercase">
           <textPath href={`#${ring}`} startOffset="0" textLength="213" lengthAdjust="spacingAndGlyphs">
             {`${text} ${text} `}

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Bricolage_Grotesque, DM_Sans } from 'next/font/google'
+import { Bricolage_Grotesque, DM_Sans, Dancing_Script } from 'next/font/google'
 import { WaitlistProvider } from '@/components/WaitlistForm'
 import './globals.css'
 
@@ -19,6 +19,14 @@ const dmSans = DM_Sans({
   display: 'swap',
 })
 
+// The accent face: a flowing script, for the odd word in a headline that
+// should feel written rather than set. Variable: the bold end carries it.
+const dancingScript = Dancing_Script({
+  subsets: ['latin'],
+  variable: '--font-dancing-script',
+  display: 'swap',
+})
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mowlo.vercel.app'
 const OG_IMAGE = `${SITE_URL}/og-image.jpg`
 
@@ -26,34 +34,36 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: 'Mowlo — Your hustle deserves to look this good.',
+    default: 'Mowlo — Drop merch to your audience.',
     template: '%s | Mowlo',
   },
   description:
-    'Get a full brand kit — logo, colours, business cards, flyers, stickers — in minutes. AI-powered design, printed in Nigeria & Ghana, delivered to your door in 24 hours.',
+    'Creator merch drops with no stock and nothing up front. Pick tees, mugs, stickers and more, set your price and window — when orders close, Mowlo prints and delivers to every buyer in Nigeria & Ghana.',
   keywords: [
+    'creator merch Nigeria',
+    'merch drops',
+    'sell merch Nigeria',
+    'print on demand merch Lagos',
+    'influencer merch Nigeria',
+    'custom tees Nigeria',
+    'creator store Ghana',
+    'merch without stock',
     'print on demand Nigeria',
-    'brand kit Nigeria',
-    'stickers Nigeria',
-    'business cards Lagos',
-    'flyers Lagos',
-    'small business branding Nigeria',
-    'brand packs Ghana',
-    'AI brand design',
-    'print shop Nigeria',
-    'reorder print online',
+    'small business printing Nigeria',
   ],
   authors: [{ name: 'Mowlo' }],
   creator: 'Mowlo',
   publisher: 'Mowlo',
 
+  // TODO(creators): og-image.jpg still shows a print order; swap for a
+  // merch render exported from the landing scene.
   openGraph: {
     type: 'website',
     url: SITE_URL,
     siteName: 'Mowlo',
-    title: 'Mowlo — Your hustle deserves to look this good.',
+    title: 'Mowlo — Drop merch to your audience.',
     description:
-      'Logo, colours, business cards, flyers, stickers — built by AI, printed locally, delivered to your door in 24 hours. The brand-in-a-box for small businesses in Nigeria & Ghana.',
+      'No stock. Nothing up front. Set your price and window — when orders close, Mowlo prints and delivers to every buyer.',
     locale: 'en_NG',
     images: [
       {
@@ -70,9 +80,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@mowlohq',
     creator: '@mowlohq',
-    title: 'Mowlo — Your hustle deserves to look this good.',
+    title: 'Mowlo — Drop merch to your audience.',
     description:
-      'AI brand kits, business cards, flyers & stickers — printed in Nigeria & Ghana, delivered in 24 hrs. Look like a million naira from day one.',
+      'Merch drops for creators in Nigeria & Ghana. No stock, no money down — you set the timer, we print and deliver.',
     images: [OG_IMAGE],
   },
 
@@ -102,7 +112,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${bricolage.variable} ${dmSans.variable} ${dancingScript.variable}`}>
       <body>
         <WaitlistProvider>{children}</WaitlistProvider>
       </body>

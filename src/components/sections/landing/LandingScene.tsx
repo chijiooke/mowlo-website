@@ -11,7 +11,8 @@ import { StudioLighting } from '@/components/three/StudioLighting'
 import { Flyer } from '@/components/three/objects/Flyer'
 import { RoundSticker } from '@/components/three/objects/RoundSticker'
 import { createLive } from '@/components/three/objects/live'
-import { FLIGHTS } from './beats'
+import { FLIGHTS, type LandingVariant } from './beats'
+import { MerchScene } from './MerchScene'
 
 /** How far off screen a piece starts and ends. A phone sees a narrower slice. */
 const REACH = { wide: 9 * 1.25, compact: 5.5 * 0.95 }
@@ -19,6 +20,7 @@ const REACH = { wide: 9 * 1.25, compact: 5.5 * 0.95 }
 const mix = (a: number, b: number, t: number) => a + (b - a) * t
 
 interface LandingSceneProps {
+  variant: LandingVariant
   progress: MotionValue<number>
   compact: boolean
   /** Pointer tilt — fine pointers only. */
@@ -26,10 +28,13 @@ interface LandingSceneProps {
 }
 
 /**
- * The landing's fly-past: printed paper crossing the screen behind the brand
- * name, one piece at a time, each making a single slow pass.
+ * The landing's 3D: for Print, printed paper crossing the screen behind the
+ * brand name, one at a time, each making a single slow pass; for Creators,
+ * the merch choreography (MerchScene). Both share the camera, the lights and
+ * the pointer tilt.
  */
-export default function LandingScene({ progress, compact, tilt }: LandingSceneProps) {
+export default function LandingScene({ variant, progress, compact, tilt }: LandingSceneProps) {
+  const pieces = variant === 'print' ? FLIGHTS : []
   const rig = useRef<Group>(null)
   const flights = useRef<(Group | null)[]>([])
   // Printed, and part-uncurled, so the paper reads as real as it tumbles past.
@@ -44,7 +49,7 @@ export default function LandingScene({ progress, compact, tilt }: LandingScenePr
     const p = progress.get()
     const reach = compact ? REACH.compact : REACH.wide
 
-    FLIGHTS.forEach((flight, i) => {
+    pieces.forEach((flight, i) => {
       const group = flights.current[i]
       if (!group) return
       const t = beat(p, flight.from, flight.to)
@@ -76,7 +81,8 @@ export default function LandingScene({ progress, compact, tilt }: LandingScenePr
       <StudioLighting resolution={compact ? 128 : 256} />
 
       <group ref={rig}>
-        {FLIGHTS.map((flight, i) => (
+        {variant === 'merch' && <MerchScene progress={progress} compact={compact} />}
+        {pieces.map((flight, i) => (
           <group
             key={flight.id}
             ref={el => {
@@ -91,3 +97,4 @@ export default function LandingScene({ progress, compact, tilt }: LandingScenePr
     </>
   )
 }
+

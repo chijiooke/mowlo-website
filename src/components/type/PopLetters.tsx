@@ -14,6 +14,8 @@ interface PopLettersProps {
   className?: string
   /** Seconds before the first letter lands. */
   delay?: number
+  /** How much of the line must be on screen before it plays (0–1). Default: as soon as it's in. */
+  amount?: number
 }
 
 /**
@@ -23,7 +25,7 @@ interface PopLettersProps {
  *
  * Words stay unbroken, and screen readers get the plain text.
  */
-export function PopLetters({ text, className, delay = 0 }: PopLettersProps) {
+export function PopLetters({ text, className, delay = 0, amount }: PopLettersProps) {
   const reduce = useReduce()
   let index = 0
 
@@ -32,7 +34,7 @@ export function PopLetters({ text, className, delay = 0 }: PopLettersProps) {
       className={clsx('inline-block', className)}
       initial={reduce ? false : 'hidden'}
       whileInView="visible"
-      viewport={{ once: true, margin: '-40px' }}
+      viewport={amount === undefined ? { once: true, margin: '-40px' } : { once: true, amount }}
       variants={{ visible: { transition: { staggerChildren: 0.035, delayChildren: delay } } }}
     >
       <span className="sr-only">{text}</span>

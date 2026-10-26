@@ -10,7 +10,7 @@ import { SceneView } from '@/components/three/SceneView'
 import { useReduce } from '@/lib/motion'
 import { track, useSectionProgress } from '@/lib/scroll/useSectionProgress'
 import { useMediaQuery } from '@/lib/useMediaQuery'
-import { FINALE, PARADE_STILL, PIECES, pieceWindow, type Piece } from './beats'
+import { FINALE, PARADE_STILL, PIECES, pieceWindow, type ParadeVariant, type Piece } from './beats'
 
 // Keeps three.js out of the page bundle; it arrives with the canvas.
 const ParadeScene = dynamic(() => import('./ParadeScene'), { ssr: false })
@@ -23,6 +23,32 @@ function within(i: number, a: number, b: number, c: number, d: number) {
 }
 
 /**
+ * The closing line, once the last piece has gone: the three were a sample.
+ * Merch has none — the card fan of the whole line follows straight on
+ * (MerchLine), so its parade ends with its last piece.
+ */
+const FINALES: Record<ParadeVariant, { lines: [string, string]; body: string } | null> = {
+  print: {
+    lines: ['And much', 'more.'],
+    body: 'Everything your business or event needs, made easy. No chasing printers. No wahala.',
+  },
+  merch: null,
+}
+
+/**
+ * Without a finale the track stops just after the last piece has gone
+ * (its window ends at 0.80): progress runs to END rather than 1, and the
+ * track is shortened to match, so each piece keeps the same scroll.
+ */
+const END = 0.82
+const TRACK: Record<ParadeVariant, string> = {
+  print: 'h-[340vh] md:h-[400vh]',
+  merch: 'h-[280vh] md:h-[330vh]',
+}
+/** Where a finale-less parade holds when motion is reduced: the last piece, in its spotlight. */
+const NO_FINALE_STILL = 0.66
+
+/**
  * Chapter 3 — the parade. Each product flies in, is printed, has its moment and
  * flies out over dark crumpled paper: no glows, patterns or mega words, so the
  * product is the only thing moving. Once the last one has gone, the finale
@@ -31,11 +57,15 @@ function within(i: number, a: number, b: number, c: number, d: number) {
  * Two sticky layers share the track. Sticky creates a stacking context, so the
  * canvas layer sits under the copy layer (z-10).
  */
-export function Parade() {
+export function Parade({ variant, id }: { variant: ParadeVariant; id?: string }) {
+  const pieces = PIECES[variant]
+  const finale = FINALES[variant]
   const trackRef = useRef<HTMLElement>(null)
-  const scrolled = useSectionProgress(trackRef)
+  const raw = useSectionProgress(trackRef)
+  const trimmed = useTransform(raw, p => p * END)
+  const scrolled = finale ? raw : trimmed
   const reduce = useReduce()
-  const still = useMotionValue(PARADE_STILL)
+  const still = useMotionValue(finale ? PARADE_STILL : NO_FINALE_STILL)
   const progress = reduce ? still : scrolled
 
   const compact = useMediaQuery('(max-width: 767px)')
@@ -46,12 +76,12 @@ export function Parade() {
   const finaleVisibility = useTransform(progress, v => (v > FINALE[0] ? 'visible' : 'hidden'))
 
   return (
-    <Chapter ground="ink" ref={trackRef} className="h-[340vh] md:h-[400vh] motion-reduce:h-svh">
+    <Chapter ground="ink" id={id} ref={trackRef} className={clsx(TRACK[variant], 'motion-reduce:h-svh')}>
       {/* ── The canvas, on crumpled paper ── */}
       <div className="sticky top-0 h-svh overflow-hidden">
         <PaperGround />
         <SceneView className="absolute inset-0">
-          <ParadeScene progress={progress} compact={compact} tilt={fine && !reduce} />
+          <ParadeScene variant={variant} progress={progress} compact={compact} tilt={fine && !reduce} />
         </SceneView>
       </div>
 
@@ -59,7 +89,7 @@ export function Parade() {
       <div className="pointer-events-none sticky top-0 z-10 -mt-[100svh] h-svh">
         {/* The captions below are the visual form of this list. */}
         <ul className="sr-only">
-          {PIECES.map(p => (
+          {pieces.map(p => (
             <li key={p.id}>
               {p.name}
               {p.soon ? ' (coming soon)' : ''}: {p.spec}
@@ -67,26 +97,26 @@ export function Parade() {
           ))}
         </ul>
 
-        {PIECES.map((piece, i) => (
-          <Caption key={piece.id} piece={piece} index={i} progress={progress} />
+        {pieces.map((piece, i) => (
+          <Caption key={piece.id} piece={piece} index={i} count={pieces.length} progress={progress} />
         ))}
 
         {/* The finale: the three were a sample, not the range. */}
-        <motion.div
-          style={{ opacity: finaleOpacity, y: finaleY, visibility: finaleVisibility }}
-          className="absolute inset-0 flex items-center text-center"
-        >
-          <Container className="flex flex-col items-center">
-            {/* Set like "Show up properly." below it: full-width face, two lines, room between them. */}
-            <p className="font-display text-[clamp(46px,9vw,108px)] leading-none font-extrabold tracking-[-0.04em]">
-              <span className="block">And much</span>
-              <span className="block text-amber">more.</span>
-            </p>
-            <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-bone/70 md:mt-8 md:text-xl">
-              Everything your business or event needs, made easy. No chasing printers. No wahala.
-            </p>
-          </Container>
-        </motion.div>
+        {finale && (
+          <motion.div
+            style={{ opacity: finaleOpacity, y: finaleY, visibility: finaleVisibility }}
+            className="absolute inset-0 flex items-center text-center"
+          >
+            <Container className="flex flex-col items-center">
+              {/* Set like "Show up properly." below it: full-width face, two lines, room between them. */}
+              <p className="font-display text-[clamp(46px,9vw,108px)] leading-none font-extrabold tracking-[-0.04em]">
+                <span className="block">{finale.lines[0]}</span>
+                <span className="block text-amber">{finale.lines[1]}</span>
+              </p>
+              <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-bone/70 md:mt-8 md:text-xl">{finale.body}</p>
+            </Container>
+          </motion.div>
+        )}
       </div>
     </Chapter>
   )
@@ -108,7 +138,7 @@ function PaperGround() {
 }
 
 /** The name and spec of the piece on stage. Visual only — the sr-only list carries it. */
-function Caption({ piece, index, progress }: { piece: Piece; index: number; progress: MotionValue<number> }) {
+function Caption({ piece, index, count, progress }: { piece: Piece; index: number; count: number; progress: MotionValue<number> }) {
   const range = within(index, 0.22, 0.36, 0.66, 0.8)
   const opacity = useTransform(progress, ...track(range, [0, 1, 1, 0]))
   const y = useTransform(progress, ...track(range, [24, 0, 0, -24]))
@@ -119,7 +149,7 @@ function Caption({ piece, index, progress }: { piece: Piece; index: number; prog
         <div className="max-w-sm">
           <div className="mb-3 flex items-center gap-3 text-eyebrow text-bone/55 uppercase">
             <span className={clsx('size-2 rounded-full', piece.dot)} />
-            {String(index + 1).padStart(2, '0')} / {String(PIECES.length).padStart(2, '0')}
+            {String(index + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
           </div>
           <p className="flex flex-wrap items-center gap-3 font-display text-title font-condensed text-bone">
             {piece.name}

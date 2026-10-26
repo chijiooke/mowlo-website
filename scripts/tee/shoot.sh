@@ -34,7 +34,7 @@ for view in "$@"; do
   "$CHROME" --headless=new --use-angle=metal --ignore-gpu-blocklist --hide-scrollbars --no-first-run \
     --window-size=1100,1100 --virtual-time-budget=25000 \
     --user-data-dir="$OUT/.profile-$name" --screenshot="$png" \
-    "http://localhost:3000/dev/tee?$query" >/dev/null 2>&1 &
+    "http://localhost:3000/${PAGE:-dev/tee}?$query" >/dev/null 2>&1 &
   pid=$!
   # Up to 90s for the PNG to appear, then a moment for the write to finish.
   for _ in $(seq 1 180); do

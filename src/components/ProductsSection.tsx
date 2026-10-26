@@ -12,8 +12,6 @@ import { ProductDeck } from './ProductDeck'
 import { PRODUCTS, productSource, type Product } from './products'
 import { useWaitlist } from './WaitlistForm'
 
-/** Middle of the deck — the card the fan opens around. */
-const MID = (PRODUCTS.length - 1) / 2
 /** Widest gap between neighbouring cards, as a share of one card's width. */
 const MAX_SPREAD = 62
 /** Tilt on each card while the deck is still squared up, in degrees per step. */
@@ -27,6 +25,8 @@ const FIT_MARGIN = 0.92
 
 interface FanPose {
   i: number
+  /** Middle of the hand — the card the fan opens around. */
+  mid: number
   /** Gap between neighbours, % of card width. Shrinks to fit narrow screens. */
   spread: number
   /** When set, the hand is simply already open — no travel. */
@@ -38,54 +38,79 @@ interface FanPose {
  * are in percentages of a card, so the hand stays in proportion at every width.
  */
 const card: Variants = {
-  stacked: ({ i }: FanPose) => ({
+  stacked: ({ i, mid }: FanPose) => ({
     x: '0%',
     y: '0%',
-    rotate: (i - MID) * STACK_TILT,
+    rotate: (i - mid) * STACK_TILT,
   }),
-  fanned: ({ i, spread, reduce }: FanPose) => ({
-    x: `${(i - MID) * spread}%`,
+  fanned: ({ i, mid, spread, reduce }: FanPose) => ({
+    x: `${(i - mid) * spread}%`,
     // Squared term lifts the middle of the hand and drops the outer cards.
-    y: `${(i - MID) ** 2 * spread * ARC_LIFT}%`,
-    rotate: (i - MID) * spread * FAN_TILT,
+    y: `${(i - mid) ** 2 * spread * ARC_LIFT}%`,
+    rotate: (i - mid) * spread * FAN_TILT,
     transition: t(reduce, SETTLE),
   }),
 }
 
-export function ProductsSection() {
+interface ProductsSectionProps {
+  products?: Product[]
+  /** Small label above the hand. */
+  label?: string
+  /** Two hand-broken headline lines. */
+  lines?: [string, string]
+  sub?: React.ReactNode
+  /** What a card does when tapped. The print site opens the waitlist, tagged with the card. */
+  onOpen?: (product: Product) => void
+  id?: string
+}
+
+/** The print line by default; the Creators page passes its merch. */
+export function ProductsSection({
+  products = PRODUCTS,
+  label = 'Products',
+  lines = ['Show up', 'properly.'],
+  sub,
+  onOpen,
+  id = 'products',
+}: ProductsSectionProps) {
   const openWaitlist = useWaitlist()
   // A six-card fan has nowhere to open on a phone, so the phone gets a deck
   // instead — a different component, not the same one in a different pose.
   const isPhone = useMediaQuery('(max-width: 640px)')
-  const open = (p: Product) => openWaitlist(productSource(p))
+  const open = onOpen ?? ((p: Product) => openWaitlist(productSource(p)))
 
   return (
-    <section id="products" className="section deck-stage">
+    <section id={id} className="section deck-stage">
       <Reveal className="deck-head">
-        <span className="sec-label">Products</span>
+        <span className="sec-label">{label}</span>
       </Reveal>
 
-      {isPhone ? <ProductDeck products={PRODUCTS} onOpen={open} /> : <ProductFan onOpen={open} />}
+      {isPhone ? <ProductDeck products={products} onOpen={open} /> : <ProductFan products={products} onOpen={open} />}
 
       <Reveal delay={0.05} className="deck-head">
         <h2 className="sec-title sec-title-xl">
-          <PopLetters text="Show up" />
+          <PopLetters text={lines[0]} />
           <br />
-          <PopLetters text="properly." delay={0.25} />
+          <PopLetters text={lines[1]} delay={0.25} />
         </h2>
       </Reveal>
       <Reveal delay={0.1} className="deck-head">
         <p className="sec-sub">
-          Designed, printed and delivered — for every hustle in Nigeria{' '}
-          <Icon icon="circle-flags:ng" className="sub-flag" aria-hidden="true" /> and Ghana{' '}
-          <Icon icon="circle-flags:gh" className="sub-flag" aria-hidden="true" />.
+          {sub ?? (
+            <>
+              Designed, printed and delivered — for every hustle in Nigeria{' '}
+              <Icon icon="circle-flags:ng" className="sub-flag" aria-hidden="true" /> and Ghana{' '}
+              <Icon icon="circle-flags:gh" className="sub-flag" aria-hidden="true" />.
+            </>
+          )}
         </p>
       </Reveal>
     </section>
   )
 }
 
-function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
+function ProductFan({ products, onOpen }: { products: Product[]; onOpen: (product: Product) => void }) {
+  const mid = (products.length - 1) / 2
   const fanRef = useRef<HTMLDivElement>(null)
   const [spread, setSpread] = useState(MAX_SPREAD)
   const reduce = useReduce()
@@ -100,7 +125,7 @@ function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
     const fit = () => {
       const slotWidth = slot.offsetWidth
       if (!slotWidth) return
-      const roomPerStep = (fan.offsetWidth * FIT_MARGIN - slotWidth) / 2 / MID
+      const roomPerStep = (fan.offsetWidth * FIT_MARGIN - slotWidth) / 2 / mid
       setSpread(Math.max(16, Math.min(MAX_SPREAD, (roomPerStep / slotWidth) * 100)))
     }
 
@@ -108,7 +133,7 @@ function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
     const observer = new ResizeObserver(fit)
     observer.observe(fan)
     return () => observer.disconnect()
-  }, [])
+  }, [mid])
 
   return (
     <div className="deck-wrap">
@@ -119,13 +144,13 @@ function ProductFan({ onOpen }: { onOpen: (product: Product) => void }) {
         animate={inView || reduce ? 'fanned' : 'stacked'}
         variants={{ fanned: { transition: { staggerChildren: 0.07, delayChildren: 0.25 } } }}
       >
-        {PRODUCTS.map((p, i) => (
+        {products.map((p, i) => (
           // The slot centres every card on one point; the motion layer inside
           // owns the deck-to-fan transform. Resting depth is a custom property
           // rather than an inline z-index, so the hover rule can still lift a
           // card over its neighbours.
           <div key={p.name} className="deck-slot" style={{ ['--z' as string]: String(i) }}>
-            <motion.div className="deck-card" custom={{ i, spread, reduce }} variants={card}>
+            <motion.div className="deck-card" custom={{ i, mid, spread, reduce }} variants={card}>
               <ProductCard product={p} onOpen={() => onOpen(p)} />
             </motion.div>
           </div>

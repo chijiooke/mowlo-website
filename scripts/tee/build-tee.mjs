@@ -56,7 +56,8 @@ function keyed(keys, x) {
 // seam; `s` runs across a panel from the left side seam (−1) to the right (+1).
 
 const NECK_Y = 1.16
-const SHOULDER_DROP = 0.2
+/** How far the shoulder line falls from the neck edge to the shoulder point. A relaxed tee drops a lot. */
+const SHOULDER_DROP = 0.42
 /** Boxy: nearly as wide as it is long, with a touch of flare at the hem. */
 const HALF_WIDTH = [[0, 1.0], [1.0, 1.0], [2.45, 1.04]]
 const HALF_DEPTH = [[0, 0.34], [0.9, 0.35], [1.7, 0.33], [2.45, 0.31]]
@@ -69,13 +70,14 @@ const P_HEM = ROLL_P + (LENGTH - ROLL)
 const ARMPIT = 0.82
 /** How far each panel stops short of the side seam at the armhole's widest. */
 const ARMHOLE_GAP = 0.3
-const NECK_HALF = 0.34
+const NECK_HALF = 0.44
 /** How far the neckline dips below the shoulder line, measured straight down. */
-const FRONT_DROP = 0.24
-const BACK_DROP = 0.1
+const FRONT_DROP = 0.3
+const BACK_DROP = 0.14
 const WALL = 0.016
 const BAND = 0.09
-const SLEEVE = { dir: [0.55, -0.835, 0.03], length: 0.72, rx: 0.33, rz: 0.28 }
+/** Sleeves fall at about 43° from vertical, so their top edge carries on the shoulder line. */
+const SLEEVE = { dir: [0.68, -0.73, 0.03], length: 0.72, rx: 0.33, rz: 0.28 }
 
 const COLUMNS = 56
 const ARMHOLE_ROWS = 16
@@ -87,7 +89,20 @@ const HEM_ROWS = [[0.075, 0.3], [0.058, 1], [0.049, 0], [0.04, 1], [0.022, 0], [
 
 // The shoulder starts sloping where the collar ends, so the line runs out of the
 // neckband in one curve. Starting it further in left a flat top with a bend in it.
-const ridgeY = x => NECK_Y - SHOULDER_DROP * Math.pow(smoothstep(NECK_HALF * 0.9, 1.02, Math.abs(x)), 1.15)
+// It leaves the collar level and keeps falling, a little faster as it goes, all
+// the way through the shoulder point and on into the sleeve. A smoothstep here
+// levelled off again at the shoulder point, which squared the shoulders into
+// pads; the curve must never flatten before the sleeve takes over.
+const RIDGE_FROM = NECK_HALF * 0.9
+const RIDGE_TO = 1.02
+const RIDGE_POW = 1.4
+const ridgeY = x => {
+  const u = (Math.abs(x) - RIDGE_FROM) / (RIDGE_TO - RIDGE_FROM)
+  if (u <= 0) return NECK_Y
+  // Past the shoulder point, carry on at the slope it arrived with.
+  const f = u <= 1 ? Math.pow(u, RIDGE_POW) : 1 + RIDGE_POW * (u - 1)
+  return NECK_Y - SHOULDER_DROP * f
+}
 const sectionLength = (a, b) => 2 * (b - CORNER) + Math.PI * CORNER + 2 * (a - CORNER)
 
 /** A point on the front half of a rounded-rectangle section, by arc length from the left side. */
@@ -219,11 +234,14 @@ function buildPanel(sigma) {
     const mirror = Math.min(i, COLUMNS - i)
     tops.push(neckTop(sigma, bodyAt(sigma, -1 + (2 * mirror) / COLUMNS, 0).pos[0]))
   }
-  // Enough passes to round off where the neckline meets the shoulder seam. That
-  // corner is a kink in the pattern, and the neckband, sewn along this edge,
-  // turns it into a tab sticking out at each shoulder.
+  // Only columns inside the neck opening ease: outside it, the top row is the
+  // shoulder seam, which front and back must share exactly so the drape welds
+  // them into one. Easing leaked a sliver of neck depth into those columns —
+  // different front and back — and the seam split there, standing up as flaps
+  // along each shoulder. The neckband rounds the corner itself (see below).
+  const inNeck = tops.map(t => t > 1e-6)
   for (let pass = 0; pass < 9; pass++) {
-    tops = tops.map((t, i) => (i === 0 || i === W - 1 ? t : 0.25 * tops[i - 1] + 0.5 * t + 0.25 * tops[i + 1]))
+    tops = tops.map((t, i) => (!inNeck[i] || i === 0 || i === W - 1 ? t : 0.25 * tops[i - 1] + 0.5 * t + 0.25 * tops[i + 1]))
   }
   const pts = []
   const meta = []
@@ -304,8 +322,10 @@ function displace(part, fold) {
 // seams pinned where a hanger would hold them.
 
 const SIM = { frames: 360, iterations: 10, gravity: 0.0004, damping: 0.985, slack: 1.02, weft: 1.07, bend: 0.2, friction: 0.7, margin: 0.014 }
+/** How far under the pattern's shoulder line the mannequin's shoulders sit (cloth thickness plus contact margin). */
+const SHOULDER_REST = 0.02
 /** The mannequin: narrower and shallower than the tee everywhere, so it starts clear of the cloth. */
-const BODY_WIDTH = [[-1.6, 0.8], [-0.6, 0.72], [0.35, 0.8], [0.85, 0.84]]
+const BODY_WIDTH = [[-1.6, 0.8], [-0.6, 0.72], [0.3, 0.78], [0.85, 0.78]]
 const BODY_DEPTH = [[-1.6, 0.25], [-0.5, 0.23], [0.35, 0.28], [0.85, 0.2]]
 
 const smin = (a, b, k) => {
@@ -334,7 +354,13 @@ function makeBody(sleeves) {
     const qx = ax - a + r
     const qz = Math.abs(z) - b + r
     const section = Math.hypot(Math.max(qx, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qz), 0) - r
-    let d = smax(section, y - (ridgeY(Math.min(ax, 0.9)) - 0.05), 0.12)
+    // The shoulders follow the ridge all the way out (no clamp: a level top past
+    // the shoulder point is a corner the cloth catches on) and round over
+    // generously into the arm, so the cloth rolls off them instead of tenting.
+    // Just under the pattern's own shoulder line, so the cloth rests where it was
+    // cut. Further down, the cloth beside the pinned neck sagged away and left
+    // the collar's corners standing up as two peaks.
+    let d = smax(section, y - (ridgeY(ax) - SHOULDER_REST), 0.26)
     d = smin(d, Math.max(Math.hypot(x, z * 1.15) - 0.21, 0.9 - y), 0.08)
     for (const arm of arms) d = smin(d, capsule(q, arm.a, arm.dir, SLEEVE.length + 0.3, 0.16), 0.12)
     return d
@@ -472,10 +498,94 @@ function simulate(parts, body) {
     }
   }
 
+  relax(x, n, stretch, inv)
+
   parts.forEach((part, pi) => {
     part.pts = maps[pi].map(id => [x[id * 3], x[id * 3 + 1], x[id * 3 + 2]])
   })
   return { particles: n, stretch: stretch.length / 3, bends: bends.length / 3, contacts }
+}
+
+/**
+ * Lets the shoulders rest easy. The drape leaves small sharp creases where the
+ * cloth is held — a ridge along each shoulder seam, a lip at the shoulder
+ * point, peaks either side of the collar — that read as stiff, not relaxed.
+ * Taubin smoothing (a shrinking step, then an inflating one, so the cloth
+ * keeps its size) softens them. It is weighted by height: full over the
+ * shoulders and upper chest, gone by the waist, so the soft vertical folds the
+ * drape made lower down stay as they are. Pinned points never move.
+ */
+const RELAX = { passes: 14, shrink: 0.5, inflate: -0.53, from: 0.05, full: 0.75 }
+
+function relax(x, n, stretch, inv) {
+  const nbrs = Array.from({ length: n }, () => [])
+  for (let c = 0; c < stretch.length; c += 3) {
+    nbrs[stretch[c]].push(stretch[c + 1])
+    nbrs[stretch[c + 1]].push(stretch[c])
+  }
+  const weight = new Float64Array(n)
+  for (let i = 0; i < n; i++) weight[i] = inv[i] ? smoothstep(RELAX.from, RELAX.full, x[i * 3 + 1]) : 0
+  const next = new Float64Array(x.length)
+  const step = factor => {
+    for (let i = 0; i < n; i++) {
+      const o = i * 3
+      const ns = nbrs[i]
+      if (!weight[i] || !ns.length) {
+        next[o] = x[o]
+        next[o + 1] = x[o + 1]
+        next[o + 2] = x[o + 2]
+        continue
+      }
+      let ax = 0
+      let ay = 0
+      let az = 0
+      for (const j of ns) {
+        ax += x[j * 3]
+        ay += x[j * 3 + 1]
+        az += x[j * 3 + 2]
+      }
+      const k = (factor * weight[i]) / ns.length
+      next[o] = x[o] + k * (ax - ns.length * x[o])
+      next[o + 1] = x[o + 1] + k * (ay - ns.length * x[o + 1])
+      next[o + 2] = x[o + 2] + k * (az - ns.length * x[o + 2])
+    }
+    x.set(next)
+  }
+  for (let p = 0; p < RELAX.passes; p++) {
+    step(RELAX.shrink)
+    step(RELAX.inflate)
+  }
+}
+
+/**
+ * Rewinds any triangle that faces the wrong way. Winding is decided before the
+ * drape, against a reference direction per part (outward from the body, or
+ * from the sleeve's axis). Where an armhole is skewed against its sleeve, a
+ * triangle or two at its top get judged against the wrong side and come out
+ * inside-out; their back face is culled and each shows as a pinhole. After
+ * the drape, every face is checked against the surface round it — the summed
+ * normals of its corners — and turned round if it disagrees. Returns how many.
+ */
+function fixWinding(part) {
+  const vn = part.pts.map(() => [0, 0, 0])
+  const faceNormal = t => cross(sub(part.pts[part.tris[t + 1]], part.pts[part.tris[t]]), sub(part.pts[part.tris[t + 2]], part.pts[part.tris[t]]))
+  for (let t = 0; t < part.tris.length; t += 3) {
+    const f = faceNormal(t)
+    for (let k = 0; k < 3; k++) vn[part.tris[t + k]] = add(vn[part.tris[t + k]], f)
+  }
+  let flipped = 0
+  for (let t = 0; t < part.tris.length; t += 3) {
+    const f = faceNormal(t)
+    // The surface round it, without this face's own vote.
+    const around = [0, 1, 2].reduce((sum, k) => add(sum, sub(vn[part.tris[t + k]], f)), [0, 0, 0])
+    if (dot(f, around) < 0) {
+      const b = part.tris[t + 1]
+      part.tris[t + 1] = part.tris[t + 2]
+      part.tris[t + 2] = b
+      flipped++
+    }
+  }
+  return flipped
 }
 
 // ── Build ─────────────────────────────────────────────────────────────────
@@ -489,7 +599,32 @@ const left = buildSleeve(-1, front, back)
 
 const garment = [front, back, right, left]
 const draped = simulate(garment, makeBody([right, left]))
+const rewound = garment.reduce((sum, part) => sum + fixWinding(part), 0)
 for (const part of garment) part.normals = vertexNormals(part.pts, part.tris)
+// Where parts meet — the sleeves at the armholes, front and back at the seams —
+// each computed its own normal for the same point. They disagree at the join,
+// so one part's inner wall (offset along its normal) poked out through the
+// other part's outer surface as a dark nick. Every shared point takes the
+// average, so the walls follow one another round the seam.
+{
+  const key = q => `${Math.round(q[0] * 1e4)},${Math.round(q[1] * 1e4)},${Math.round(q[2] * 1e4)}`
+  const shared = new Map()
+  garment.forEach((part, pi) =>
+    part.pts.forEach((q, i) => {
+      const k = key(q)
+      const e = shared.get(k) ?? { n: [0, 0, 0], parts: new Set() }
+      e.n = add(e.n, part.normals[i])
+      e.parts.add(pi)
+      shared.set(k, e)
+    }),
+  )
+  for (const part of garment) {
+    part.normals = part.normals.map((n, i) => {
+      const e = shared.get(key(part.pts[i]))
+      return e.parts.size > 1 ? normalize(e.n) : n
+    })
+  }
+}
 // The drape makes the folds; only the stitching is placed by hand.
 for (const part of garment) displace(part, (q, m) => -0.0025 * m.stitch)
 
@@ -592,6 +727,20 @@ for (const sleeve of [right, left]) {
     }
   }
 
+  // Round the loop where the front and back neck curves meet at each shoulder.
+  // They meet at an angle (the seam can't take the neck's easing — see
+  // buildPanel), and a band swept through an angle juts out there as a tab.
+  // A few passes of neighbour averaging turn the corner into a curve; the band
+  // lifts a hair off the cloth there, which the rib hides.
+  const BAND_ROUND = 7
+  for (let pass = 0; pass < BAND_ROUND; pass++) {
+    const L = loop.length
+    const next = loop.map((q, m) => scale(add(add(loop[(m - 1 + L) % L], loop[(m + 1) % L]), scale(q, 2)), 0.25))
+    const nextN = loopNormals.map((n, m) => normalize(add(add(loopNormals[(m - 1 + L) % L], loopNormals[(m + 1) % L]), scale(n, 2))))
+    loop.splice(0, L, ...next)
+    loopNormals.splice(0, L, ...nextN)
+  }
+
   const M = loop.length
   const arc = [0]
   for (let m = 1; m < M; m++) arc.push(arc[m - 1] + length(sub(loop[m], loop[m - 1])))
@@ -647,8 +796,12 @@ for (const sleeve of [right, left]) {
     d = normalize(sub(d, scale(n, dot(d, n))))
     return { q, n, d }
   })
-  // The band stands a little proud of the panel, the way a sewn-on rib does.
-  const outerAt = ({ q, n, d }, k) => add(add(q, scale(d, (BAND * k) / K)), scale(n, (0.007 * k) / K))
+  // The band stands a little proud of the panel, the way a sewn-on rib does,
+  // and is sewn over the neck edge rather than butted to it: it starts OVERLAP
+  // out onto the body, lifted just clear of it. Where the loop was rounded in
+  // from the corners, that overlap is what keeps the cut edge covered.
+  const OVERLAP = 0.028
+  const outerAt = ({ q, n, d }, k) => add(add(q, scale(d, (BAND * k) / K - OVERLAP * (1 - k / K))), scale(n, 0.0075 + (0.002 * k) / K))
 
   let row = 0
   for (let k = 0; k <= K; k++, row++) frames.forEach((f, m) => push(outerAt(f, k), f.n, m, row, false, k === 0 ? 0.8 : 0))
@@ -895,7 +1048,7 @@ console.log(
     `vertices ${total}`,
     `triangles ${indices.length / 3}`,
     `parts ${parts.length} (panels, sleeves, inner walls, rims, neckband)`,
-    `cloth: ${draped.particles} particles, ${draped.stretch} stretch + ${draped.bends} bend constraints, ${draped.contacts} resting on the body`,
+    `cloth: ${draped.particles} particles, ${draped.stretch} stretch + ${draped.bends} bend constraints, ${draped.contacts} resting on the body, ${rewound} faces rewound`,
     `size ${(file.length / 1024).toFixed(0)} KB`,
     `built in ${((performance.now() - started) / 1000).toFixed(2)}s`,
     `→ ${OUT}`,

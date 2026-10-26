@@ -1,33 +1,35 @@
 import Link from 'next/link'
+import { APPLY_URL } from '@/lib/links'
 import { MowloLogo } from './MowloLogo'
 
-const COLUMNS = [
+/** `external` links leave the site for the web app, so they skip next/link. */
+const COLUMNS: { title: string; links: { href: string; label: string; external?: boolean }[] }[] = [
   {
-    title: 'Products',
+    title: 'Creators',
     links: [
-      { href: '/#products', label: 'Stickers' },
-      { href: '/#products', label: 'Business Cards' },
-      { href: '/#products', label: 'Flyers' },
-      { href: '/#packs', label: 'Brand Packs' },
-      { href: '/partners', label: 'Print your own files' },
+      { href: '/#drops', label: 'How drops work' },
+      { href: '/#merch', label: 'What you can sell' },
+      { href: '/#paid', label: 'Getting paid' },
+      { href: '/#faq', label: 'FAQ' },
+      { href: APPLY_URL, label: 'Apply to sell', external: true },
+    ],
+  },
+  {
+    title: 'Print',
+    links: [
+      { href: '/print#products', label: 'Stickers' },
+      { href: '/print#products', label: 'Business Cards' },
+      { href: '/print#products', label: 'Flyers' },
+      { href: '/print#packs', label: 'Brand Packs' },
+      { href: '/print#app', label: 'Mowlo app' },
     ],
   },
   {
     title: 'Explore',
     links: [
-      { href: '/#how', label: 'How it works' },
       { href: '/gallery', label: "Artist's Corner" },
-      { href: '/#app', label: 'Mowlo app' },
       { href: '/partners', label: 'Print partners' },
-    ],
-  },
-  {
-    title: 'Coming soon',
-    links: [
-      { href: '/#app', label: 'Mobile app' },
-      { href: '/partners', label: 'Brand Studio' },
-      { href: '/partners', label: 'Ecommerce Store' },
-      { href: '/partners', label: 'Event invites' },
+      { href: '/partners', label: 'Print your own files' },
     ],
   },
 ]
@@ -43,7 +45,8 @@ export function Footer() {
               Mowlo
             </div>
             <p className="fb-tag">
-              Designed, printed and delivered — for small businesses in Nigeria and Ghana.
+              Merch drops for creators, print for small businesses — designed, printed and delivered in
+              Nigeria and Ghana.
             </p>
           </div>
 
@@ -53,7 +56,7 @@ export function Footer() {
               <ul className="fc-links">
                 {col.links.map(l => (
                   <li key={`${col.title}-${l.label}`}>
-                    <Link href={l.href}>{l.label}</Link>
+                    {l.external ? <a href={l.href}>{l.label}</a> : <Link href={l.href}>{l.label}</Link>}
                   </li>
                 ))}
               </ul>
@@ -64,8 +67,8 @@ export function Footer() {
         <div className="footer-bottom">
           <div className="fc">© 2026 Mowlo. All rights reserved.</div>
           <div className="fc">
-            Made with <span style={{ color: 'var(--pink)' }}>♥</span> for small businesses in Nigeria
-            and Ghana
+            Made with <span style={{ color: 'var(--pink)' }}>♥</span> for creators and small businesses in
+            Nigeria and Ghana
           </div>
         </div>
       </footer>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import clsx from 'clsx'
 import { Icon } from '@iconify/react'
@@ -14,21 +14,43 @@ import { useWaitlist } from '@/components/WaitlistForm'
 import { useReduce } from '@/lib/motion'
 import { track, useSectionProgress } from '@/lib/scroll/useSectionProgress'
 import { useMediaQuery } from '@/lib/useMediaQuery'
-import { COPY_OUT, CUE_OUT, FILL, LANDING_STILL, WORD_OUT } from './beats'
+import { COPY_OUT, CUE_OUT, FILL, LANDING_STILL, WORD_OUT, type LandingVariant } from './beats'
 
 // Keeps three.js out of the page bundle; it arrives with the canvas.
 const LandingScene = dynamic(() => import('./LandingScene'), { ssr: false })
 
 /**
+ * How long the landing pins for. Print runs three slow fly-pasts; merch runs
+ * four pieces one after another plus the stickers, each needing its own beat,
+ * so it gets the longer track (about a screen and a half per piece).
+ */
+const TRACK = {
+  print: 'h-[220vh] md:h-[260vh]',
+  merch: 'h-[340vh] md:h-[420vh]',
+}
+
+interface LandingProps {
+  /** What sails past behind the name: printed paper, or a creator's merch. */
+  variant: LandingVariant
+  /** The page's h1. Shown over the copy when `showTitle`, otherwise for screen readers only. */
+  title: ReactNode
+  showTitle?: boolean
+  lede: string
+  /** The primary action: a link out, or the waitlist (tagged with its source). */
+  cta: { label: string } & ({ href: string } | { waitlist: string })
+  secondary: { label: string; href: string }
+}
+
+/**
  * Chapter 1 — the landing. The brand name alone, filling with amber as you
- * scroll and then taking the metallic finish, while printed paper sails past
+ * scroll and then taking the metallic finish, while printed pieces sail past
  * behind it. Nothing is being sold yet: the products come two chapters down.
  *
  * Two sticky layers share the track. Sticky creates a stacking context, so the
  * scene layer (no z-index) sits under the fixed canvas and the copy layer
  * (z-10) sits over it.
  */
-export function Landing() {
+export function Landing({ variant, title, showTitle = false, lede, cta, secondary }: LandingProps) {
   const trackRef = useRef<HTMLElement>(null)
   const scrolled = useSectionProgress(trackRef)
   const reduce = useReduce()
@@ -51,7 +73,7 @@ export function Landing() {
   const cue = useTransform(progress, ...track(CUE_OUT, [1, 0]))
 
   return (
-    <Chapter ground="ink" ref={trackRef} className="h-[220vh] md:h-[260vh] motion-reduce:h-svh">
+    <Chapter ground="ink" ref={trackRef} className={clsx(TRACK[variant], 'motion-reduce:h-svh')}>
       {/* ── Below the canvas: the brand name ── */}
       <div className="sticky top-0 h-svh overflow-hidden">
         <GhostWord
@@ -64,13 +86,13 @@ export function Landing() {
           align="top"
         />
         <SceneView className="absolute inset-0">
-          <LandingScene progress={progress} compact={compact} tilt={fine && !reduce} />
+          <LandingScene variant={variant} progress={progress} compact={compact} tilt={fine && !reduce} />
         </SceneView>
       </div>
 
       {/* ── Above the canvas: copy and controls ── */}
       <div className="pointer-events-none sticky top-0 z-10 -mt-[100svh] h-svh">
-        <h1 className="sr-only">Mowlo — print and branding for small businesses in Nigeria and Ghana</h1>
+        {!showTitle && <h1 className="sr-only">{title}</h1>}
 
         <motion.div
           style={{ opacity: copy, y: copyY, visibility: copyVisibility }}
@@ -78,17 +100,28 @@ export function Landing() {
         >
           <Container className="flex md:justify-end">
             <div className="w-full md:max-w-md">
-              <p className="mb-5 max-w-[34ch] text-base leading-relaxed text-bone/70 md:mb-6 md:text-lead">
-                Business cards, stickers, flyers and tees — designed in minutes, printed locally, delivered to your
-                door.
-              </p>
+              {showTitle && (
+                // Full-width face, set like the parade finale and the closing CTA,
+                // so the poster word above is the only condensed type on screen.
+                <h1 className="mb-4 max-w-[14ch] font-display text-[clamp(2rem,3.4vw,2.75rem)] leading-[1.02] font-extrabold tracking-[-0.04em] text-bone">
+                  {title}
+                </h1>
+              )}
+              <p className="mb-5 max-w-[34ch] text-base leading-relaxed text-bone/70 md:mb-6 md:text-lead">{lede}</p>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <button type="button" className={button.primary} onClick={() => openWaitlist('landing')}>
-                  Download the app
-                  <Icon icon="lucide:arrow-right" width={18} aria-hidden="true" />
-                </button>
-                <a href="#products" className={clsx(button.ghost, 'hidden sm:inline-flex')}>
-                  See what we print
+                {'href' in cta ? (
+                  <a href={cta.href} className={button.primary}>
+                    {cta.label}
+                    <Icon icon="lucide:arrow-right" width={18} aria-hidden="true" />
+                  </a>
+                ) : (
+                  <button type="button" className={button.primary} onClick={() => openWaitlist(cta.waitlist)}>
+                    {cta.label}
+                    <Icon icon="lucide:arrow-right" width={18} aria-hidden="true" />
+                  </button>
+                )}
+                <a href={secondary.href} className={clsx(button.ghost, 'hidden sm:inline-flex')}>
+                  {secondary.label}
                 </a>
               </div>
             </div>

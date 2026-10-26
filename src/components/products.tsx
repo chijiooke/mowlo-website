@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { MERCH } from '@/lib/merch'
 import { MOWLO_BODY_PATH } from './MowloLogo'
 
 /**
@@ -67,3 +68,25 @@ export const cardVars = (p: Product) => ({ ['--bg']: p.bg }) as CSSProperties
 
 /** Analytics tag for a card, e.g. `product-business-cards`. */
 export const productSource = (p: Product) => `product-${p.name.toLowerCase().replace(/\s+/g, '-')}`
+
+/**
+ * The Creators line, as cards — same faces, colourways run in the brand order
+ * and repeated, the last card a dark one for everything else. Names and specs
+ * come from lib/merch, so a rename is one diff.
+ */
+const MERCH_CATALOGUE = [
+  { ...MERCH.tee, bg: '#E8527A', face: '#6b1530' },
+  { ...MERCH.cap, bg: '#7C5CBF', face: '#2d1b69', light: true, deco: sparkle },
+  { ...MERCH.socks, bg: '#F5A623', face: '#0E0E0F' },
+  { ...MERCH.bottle, bg: '#2A9FD6', face: '#0b4a6b' },
+  { ...MERCH.sticker, bg: '#1FB89E', face: '#0a5248', deco: antenna },
+  { ...MERCH.keyholder, bg: '#8DB82B', face: '#3d5c0a' },
+  { ...MERCH.card, bg: '#F0EDE8', face: '#0E0E0F', deco: heart },
+  { ...MERCH.mug, bg: '#FFD152', face: '#6b4400' },
+  { name: 'And more', spec: 'Wristbands, and whatever’s next.', bg: '#1E1E22', face: '#F5A623', light: true, deco: sparkle },
+]
+
+export const MERCH_PRODUCTS: Product[] = MERCH_CATALOGUE.map(({ deco, ...p }: { deco?: React.ReactNode } & Omit<Product, 'Blob'>) => ({
+  ...p,
+  Blob: blob(p.face, deco),
+}))

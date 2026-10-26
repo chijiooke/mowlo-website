@@ -59,6 +59,8 @@
 @theme inline {
   --font-display: var(--font-bricolage), 'Bricolage Grotesque', sans-serif;
   --font-body: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  /* Accent only: a word or two of script inside a sans headline. */
+  --font-accent: var(--font-dancing-script), 'Dancing Script', cursive;
 }
 
 /* Bricolage is loaded variable: the width axis gives the poster look without
@@ -101,6 +103,46 @@
 /* Fine diagonal print stripes — for ink grounds. */
 @utility bg-stripes-light {
   background-image: repeating-linear-gradient(135deg, rgb(240 237 232 / 0.05) 0 2px, transparent 2px 18px);
+}
+
+/* Metallic amber type, after the web app's AI-chip sheen: brushed metal (a
+   vertical amber ramp with a dark band, like light off a curved bar) and a
+   narrow skewed highlight raking across. The highlight rests for most of the
+   cycle — a continuous sweep reads as a loading bar, not a finish. Both layers
+   are clipped to the letters. Italic overhangs the box, hence the end padding. */
+@utility text-metallic {
+  background-image:
+    linear-gradient(100deg, transparent 0%, rgb(255 255 255 / 0) 36%, rgb(255 255 255 / 0.9) 50%, rgb(255 255 255 / 0) 64%, transparent 100%),
+    linear-gradient(180deg, var(--color-amber-hi) 0%, var(--color-amber) 40%, var(--color-amber-deep) 56%, var(--color-amber) 70%, var(--color-amber-hi) 100%);
+  background-size: 40% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: -120% 0, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-inline-end: 0.12em;
+  animation: metal-sheen 3.4s cubic-bezier(0.5, 0, 0.35, 1) infinite;
+}
+/* The same sweep over flat amber: a shimmer without the brushed-metal ramp. */
+@utility text-shimmer {
+  background-image:
+    linear-gradient(100deg, transparent 0%, rgb(255 255 255 / 0) 36%, rgb(255 255 255 / 0.9) 50%, rgb(255 255 255 / 0) 64%, transparent 100%),
+    linear-gradient(var(--color-amber), var(--color-amber));
+  background-size: 40% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: -120% 0, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-inline-end: 0.12em;
+  animation: metal-sheen 3.4s cubic-bezier(0.5, 0, 0.35, 1) infinite;
+}
+@keyframes metal-sheen {
+  0% { background-position: -120% 0, 0 0; }
+  55%, 100% { background-position: 220% 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-metallic, .text-shimmer { animation: none; }
 }
 
 /* ── Brand tokens ───────────────────────────────────────────────────────── */
@@ -163,7 +205,7 @@ nav {
 .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .logo-text { font-family: var(--display); font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
 .nav-links { display: flex; gap: 2rem; }
-.nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .2s; }
+.nav-links a { white-space: nowrap; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .2s; }
 .nav-links a:hover { color: var(--text); }
 .nav-right { display: flex; gap: 9px; align-items: center; }
 
@@ -615,7 +657,8 @@ footer { max-width: 1200px; margin: 0 auto; padding: 52px 6% 32px; }
 @keyframes shimmer { 0%, 100% { opacity: .5; } 50% { opacity: .8; } }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
+/* Six links on the Creators side need the room; below this they go to the drawer. */
+@media (max-width: 1100px) {
   .nav-links, .nav-right .btn-g { display: none; }
   .nav-burger { display: flex; }
 }

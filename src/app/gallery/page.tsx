@@ -4,7 +4,7 @@ import { Footer } from '@/components/Footer'
 import { Reveal } from '@/components/Reveal'
 import { GalleryGrid } from '@/components/GalleryGrid'
 import { getGalleryPage } from '@/lib/gallery'
-import { WaitlistCTA } from '@/components/WaitlistForm'
+import { APPLY_URL } from '@/lib/links'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mowlo.co'
 
@@ -62,7 +62,9 @@ export default function GalleryPage() {
           <p>No capital, no stock. Upload once — we print, deliver, and pay you out.</p>
         </Reveal>
         <Reveal delay={0.1}>
-          <WaitlistCTA className="btn-hp" label="Download the app →" source="gallery-page" />
+          <a className="btn-hp" href={APPLY_URL}>
+            Apply to sell →
+          </a>
         </Reveal>
       </div>
 

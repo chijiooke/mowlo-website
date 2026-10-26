@@ -2,7 +2,7 @@
  * Scrolling trust marquee. Also carries the AI points that used to have
  * sections of their own.
  */
-const ITEMS = [
+const PRINT_ITEMS = [
   '24hr Lagos delivery',
   'AI brand kit in minutes',
   'Order 25 or 500 — your call',
@@ -10,6 +10,17 @@ const ITEMS = [
   'Your brand profile, saved for next time',
   'No designer. No Computer Village. No wahala.',
   'Social flyers, ready to post',
+]
+
+/** The Creators tape: the deal, in the fewest words. */
+const MERCH_ITEMS = [
+  'No stock',
+  'No money down',
+  'Your price, your timer',
+  'Printed after the drop closes',
+  'Delivered to every buyer',
+  'Paid in two parts',
+  'Tees · Caps · Socks · Stickers',
 ]
 
 /**
@@ -44,7 +55,8 @@ const STOCK: React.CSSProperties = {
   padding: '17px 0',
 }
 
-export function TrustBar() {
+export function TrustBar({ variant = 'print' }: { variant?: 'print' | 'merch' }) {
+  const items = variant === 'merch' ? MERCH_ITEMS : PRINT_ITEMS
   return (
     <div className="overflow-hidden bg-ink py-9">
       <div className="marquee -mx-[2%] w-[104%] -rotate-[1.6deg]" style={TAPE}>
@@ -52,7 +64,7 @@ export function TrustBar() {
         <div className="marquee-track" style={STOCK}>
           {[0, 1].map(copy => (
             <div key={copy} className="flex" aria-hidden={copy === 1}>
-              {ITEMS.map(item => (
+              {items.map(item => (
                 <span key={item} className="marquee-item text-[17px]! font-extrabold! text-ink!">
                   <span aria-hidden="true" className="text-[13px] leading-none">
                     ✦

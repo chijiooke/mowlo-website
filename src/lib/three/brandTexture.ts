@@ -9,7 +9,7 @@ import { MOWLO_BODY_PATH } from '@/components/MowloLogo'
  * No prices and no invented customer brands on any face.
  */
 
-export type Face = 'card-front' | 'card-back' | 'sheet' | 'mascot' | 'badge' | 'flyer' | 'bag' | 'mug' | 'tee'
+export type Face = 'card-front' | 'card-back' | 'sheet' | 'mascot' | 'badge' | 'flyer' | 'bag' | 'mug' | 'tee' | 'cap' | 'sock' | 'bottle' | 'sticker-neon' | 'sticker-worn' | 'sticker-burst'
 
 /** What the badge is printed on. */
 export type BadgeGround = 'pink' | 'ink' | 'teal'
@@ -25,6 +25,12 @@ const SIZES: Record<Face, [number, number]> = {
   bag: [1024, 1265], // 1.7 × 2.1 panel
   mug: [1024, 380], // the wrap, unrolled
   tee: [1024, 512], // the chest mark, on transparent
+  cap: [1024, 640], // the front panels, as the patch on the crown unrolls
+  sock: [2048, 832], // cuff → toe along x, once round along y: ~3.4 × 1.4 units
+  bottle: [1024, 640], // the wrap, unrolled: once round (2πr ≈ 2.6) by the straight wall (≈ 1.6)
+  'sticker-neon': [1024, 1024],
+  'sticker-worn': [1024, 1024],
+  'sticker-burst': [1024, 1024],
 }
 
 const C = {
@@ -42,6 +48,11 @@ const C = {
   lime: '#8DB82B',
   kraft: '#C49A6C',
   ceramic: '#F4F2EE',
+  /** The cap's twill: purple, a shade deeper than the brand purple so the mark reads. */
+  twill: '#5E43A3',
+  cotton: '#EDEBE6',
+  /** The bottle's powder coat: the brand pink, a touch deeper so the wrap reads on it. */
+  bottle: '#E0466F',
 }
 
 /** The grounds a badge can be printed on, by name. */
@@ -270,6 +281,94 @@ function mascotToBounds(ctx: Ctx, w: number, h: number, bodyColour: string, with
   ctx.restore()
 }
 
+
+// ── Landing stickers ──────────────────────────────────────────────────────
+
+/** The landing stickers' grounds and inks. */
+export const STICKER_INK = {
+  neon: { ground: '#A6D93A', back: '#CBE98A' },
+  worn: { ground: '#F2B21F', back: '#EED9A4' },
+  burst: { ground: '#1D6C86', border: '#A9DCCB', ink: '#F59AB8', back: '#EEF3F0' },
+}
+
+/**
+ * The burst sticker's die-cut edge: radius at angle t, as a share of the
+ * sticker's radius. Shared with the geometry, so print and cut line up.
+ */
+export const burstRadius = (t: number) => 0.94 + 0.06 * Math.cos(t * 16)
+
+/** Type set round a circle, centred on the top, reading clockwise. */
+function ringText(ctx: Ctx, text: string, cx: number, cy: number, r: number, px: number, colour: string, start = -Math.PI / 2) {
+  setFont(ctx, 800, px, display())
+  ctx.fillStyle = colour
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const chars = Array.from(text)
+  // Spread to fill the whole ring exactly, so the line meets itself.
+  const step = (Math.PI * 2) / chars.length
+  chars.forEach((ch, i) => {
+    const a = start + i * step
+    ctx.save()
+    ctx.translate(cx + Math.cos(a) * r, cy + Math.sin(a) * r)
+    ctx.rotate(a + Math.PI / 2)
+    ctx.fillText(ch, 0, 0)
+    ctx.restore()
+  })
+}
+
+/** The mascot as an ink drawing: a thick, slightly wobbly outline and its face, no fill. */
+function inkMascot(ctx: Ctx, cx: number, cy: number, size: number, ink: string) {
+  bodyPath ??= new Path2D(MOWLO_BODY_PATH)
+  const s = size / MASCOT_BOUNDS.w
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.scale(s, s)
+  ctx.translate(-(MASCOT_BOUNDS.x + MASCOT_BOUNDS.w / 2), -(MASCOT_BOUNDS.y + MASCOT_BOUNDS.h / 2))
+  ctx.strokeStyle = ink
+  ctx.fillStyle = ink
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  // Two passes a hair apart: a marker line, not a vector one.
+  for (const [dx, dy, w] of [[0, 0, 5.2], [0.6, -0.4, 3.4]]) {
+    ctx.save()
+    ctx.translate(dx, dy)
+    ctx.lineWidth = w
+    ctx.stroke(bodyPath)
+    ctx.restore()
+  }
+  for (const [x, y] of [[26, 34], [52, 34]]) {
+    ctx.beginPath()
+    ctx.ellipse(x, y, 4.6, 6.4, 0.1, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.lineWidth = 5
+  ctx.beginPath()
+  ctx.moveTo(23, 51)
+  ctx.quadraticCurveTo(39, 66, 55, 50)
+  ctx.stroke()
+  ctx.restore()
+}
+
+/** A scuffed ink edge round a circle: many faint, jittered strokes, like worn print. */
+function scuffedRing(ctx: Ctx, cx: number, cy: number, r: number, width: number, ink: string, seed: number) {
+  ctx.save()
+  ctx.strokeStyle = ink
+  ctx.lineCap = 'round'
+  let k = seed * 9301
+  const rand = () => ((k = (k * 9301 + 49297) % 233280) / 233280)
+  for (let pass = 0; pass < 46; pass++) {
+    ctx.globalAlpha = 0.18 + rand() * 0.3
+    ctx.lineWidth = width * (0.15 + rand() * 0.5)
+    const a0 = rand() * Math.PI * 2
+    const span = 0.6 + rand() * 2.2
+    const rr = r - width * 0.6 + (rand() - 0.5) * width * 0.5
+    ctx.beginPath()
+    ctx.arc(cx, cy, rr, a0, a0 + span)
+    ctx.stroke()
+  }
+  ctx.restore()
+}
+
 // ── Faces ─────────────────────────────────────────────────────────────────
 
 type Draw = (ctx: Ctx, w: number, h: number, ground?: BadgeGround) => void
@@ -380,7 +479,136 @@ const PRINTED: Record<Face, Draw> = {
     mascot(ctx, h * 0.48, h * 0.5, h * 0.86)
     wordmark(ctx, h * 0.98, h * 0.66, h * 0.3, C.ink)
   },
+
+  cap: (ctx, w, h) => {
+    // The panel's own twill, so the patch meets the crown without a seam; the
+    // mark is set low on the front panels, where a cap's embroidery sits.
+    fill(ctx, w, h, C.twill)
+    mascot(ctx, w * 0.5, h * 0.5, h * 0.46)
+    wordmark(ctx, w * 0.5, h * 0.86, h * 0.18, C.bone, 'center')
+  },
+
+  'sticker-neon': (ctx, w, h) => {
+    // Edge to edge: no white margin. Type round the rim, the mascot drawn in ink.
+    const c = w / 2
+    fill(ctx, w, h, STICKER_INK.neon.ground)
+    ringText(ctx, 'YOU DROP IT · THEY COP IT · WE SHIP IT · ', c, c, c * 0.8, w * 0.088, C.ink)
+    inkMascot(ctx, c, c * 1.02, w * 0.4, C.ink)
+  },
+
+  'sticker-worn': (ctx, w, h) => {
+    // Amber, a big face, and an inky edge scuffed like a sticker that's been around.
+    const c = w / 2
+    fill(ctx, w, h, STICKER_INK.worn.ground)
+    ctx.save()
+    ctx.translate(c, c * 1.04)
+    ctx.scale(w / 80 * 0.7, w / 80 * 0.7)
+    ctx.translate(-39, -40)
+    // Just the face, big: the ground is the mascot's own amber.
+    drawMascotNative(ctx, STICKER_INK.worn.ground, true)
+    ctx.restore()
+    scuffedRing(ctx, c, c, c, w * 0.04, '#1B1712', 3)
+    grainOver(ctx, w, h, 0.08)
+  },
+
+  'sticker-burst': (ctx, w, h) => {
+    // A scalloped die-cut: mint border, deep teal inside, puffy pink type.
+    const c = w / 2
+    fill(ctx, w, h, STICKER_INK.burst.border)
+    ctx.fillStyle = STICKER_INK.burst.ground
+    ctx.beginPath()
+    for (let i = 0; i <= 360; i++) {
+      const t = (i / 360) * Math.PI * 2
+      const r = c * burstRadius(t) * 0.86
+      const x = c + Math.cos(t) * r
+      const y = c + Math.sin(t) * r
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    }
+    ctx.fill()
+    // Puffy: each word filled and then stroked fat in the same pink, round-joined.
+    const puffy = (text: string, y: number, px: number) => {
+      setFont(ctx, 800, px, display())
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      if ('letterSpacing' in ctx) ctx.letterSpacing = `${px * 0.06}px`
+      ctx.lineJoin = 'round'
+      ctx.strokeStyle = STICKER_INK.burst.ink
+      ctx.lineWidth = px * 0.07
+      ctx.strokeText(text, c, y)
+      ctx.fillStyle = STICKER_INK.burst.ink
+      ctx.fillText(text, c, y)
+    }
+    puffy('DROP', c * 0.7, w * 0.17)
+    puffy('is', c * 1.0, w * 0.09)
+    puffy('LIVE', c * 1.3, w * 0.17)
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
+  },
+
+  bottle: (ctx, w, h) => {
+    // Powder-coated pink, with one ribbon looping round the bottle in the
+    // brand's purple turning to lime, and the mark set upright on the front.
+    // u = 0.5 is the front (the wall's UVs start at the back, as on the mug).
+    fill(ctx, w, h, C.bottle)
+    ctx.save()
+    const grad = ctx.createLinearGradient(0, 0, w, 0)
+    grad.addColorStop(0, C.lime)
+    grad.addColorStop(0.35, C.purple)
+    grad.addColorStop(0.75, C.purple)
+    grad.addColorStop(1, C.lime)
+    ctx.strokeStyle = grad
+    ctx.lineWidth = h * 0.075
+    ctx.lineCap = 'round'
+    ctx.beginPath()
+    for (let x = -10; x <= w + 10; x += 4) {
+      const t = x / w
+      const y = h * (0.62 + 0.26 * Math.sin(t * Math.PI * 2 + 0.6) + 0.06 * Math.sin(t * Math.PI * 6))
+      if (x === -10) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+    // A loop in the ribbon, on the back.
+    ctx.beginPath()
+    ctx.arc(w * 0.13, h * 0.42, h * 0.12, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.restore()
+    mascot(ctx, w * 0.5, h * 0.36, h * 0.34)
+    wordmark(ctx, w * 0.5, h * 0.66, h * 0.13, C.bone, 'center')
+    label(ctx, 'Drink up. Drop more.', w * 0.5, h * 0.76, h * 0.045, 'rgba(240, 237, 232, 0.85)', 'center', 600)
+  },
+
+  sock: (ctx, w, h) => {
+    // x runs from the cuff (0) to the toe (1); y is once round the sock.
+    fill(ctx, w, h, C.cotton)
+    const at = (u: number) => u * w
+    // Rib cuff: amber and ink bands.
+    ctx.fillStyle = C.amber
+    ctx.fillRect(0, 0, at(0.05), h)
+    ctx.fillStyle = C.ink
+    ctx.fillRect(at(0.07), 0, at(0.018), h)
+    ctx.fillRect(at(0.1), 0, at(0.018), h)
+    // Heel and toe in amber, as on a knitted sock.
+    ctx.fillStyle = C.amber
+    ctx.fillRect(at(SOCK_HEEL[0]), 0, at(SOCK_HEEL[1] - SOCK_HEEL[0]), h)
+    ctx.fillRect(at(0.9), 0, at(0.1), h)
+    // Mascots down the leg and along the foot, upright to someone wearing it:
+    // their heads point back up the leg, toward x = 0.
+    const size = h * 0.2
+    for (const [from, to] of [[0.15, SOCK_HEEL[0] - 0.02], [SOCK_HEEL[1] + 0.03, 0.87]]) {
+      let row = 0
+      for (let u = from + 0.03; u < to; u += 0.055, row++) {
+        for (let k = 0; k < 3; k++) {
+          const y = ((k + (row % 2) * 0.5) / 3) * h + h / 6
+          // Drawn again one turn either side, so a mascot on the wrap seam is whole.
+          for (const turn of [-h, 0, h]) mascot(ctx, at(u), y + turn, size, -Math.PI / 2)
+        }
+      }
+    }
+  },
 }
+
+/** Where the heel sits along the sock, as a share of its length (see Socks). */
+export const SOCK_HEEL: [number, number] = [0.47, 0.6]
 
 const BLANK: Record<Face, Draw> = {
   'card-front': (ctx, w, h) => (fill(ctx, w, h, C.paper), grainOver(ctx, w, h, 0.05)),
@@ -397,6 +625,12 @@ const BLANK: Record<Face, Draw> = {
   bag: (ctx, w, h) => kraft(ctx, w, h),
   mug: (ctx, w, h) => fill(ctx, w, h, C.ceramic),
   tee: () => {}, // unprinted: no ink at all
+  cap: (ctx, w, h) => fill(ctx, w, h, C.twill),
+  sock: (ctx, w, h) => fill(ctx, w, h, C.cotton),
+  bottle: (ctx, w, h) => fill(ctx, w, h, C.bottle),
+  'sticker-neon': (ctx, w, h) => fill(ctx, w, h, STICKER_INK.neon.back),
+  'sticker-worn': (ctx, w, h) => fill(ctx, w, h, STICKER_INK.worn.back),
+  'sticker-burst': (ctx, w, h) => fill(ctx, w, h, STICKER_INK.burst.back),
 }
 
 function draw(canvas: HTMLCanvasElement, face: Face, printed: boolean, ground?: BadgeGround) {
@@ -484,4 +718,94 @@ export function paperBump(): CanvasTexture {
   bump.wrapS = bump.wrapT = RepeatWrapping
   bump.repeat.set(3, 3)
   return bump
+}
+
+/**
+ * The mascot in shades, as a one-colour print: a white body, the glaze
+ * showing through as the lenses' outline and the smile, so it reads as the
+ * same white ink as the type.
+ */
+function coolMascot(ctx: Ctx, cx: number, cy: number, size: number, glaze: string) {
+  bodyPath ??= new Path2D(MOWLO_BODY_PATH)
+  const s = size / MASCOT_BOUNDS.w
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.scale(s, s)
+  ctx.translate(-(MASCOT_BOUNDS.x + MASCOT_BOUNDS.w / 2), -(MASCOT_BOUNDS.y + MASCOT_BOUNDS.h / 2))
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fill(bodyPath)
+  // Shades: two rounded lenses on a bridge, across where the eyes sit.
+  ctx.fillStyle = C.ink
+  const lens = (x: number) => {
+    ctx.beginPath()
+    ctx.roundRect(x - 11.5, 28.5, 23, 15, [3, 3, 9, 9])
+    ctx.fill()
+  }
+  lens(26)
+  lens(52)
+  ctx.fillRect(36, 30.5, 6, 3.4)
+  // A glint on each lens.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)'
+  ctx.lineWidth = 2
+  ctx.lineCap = 'round'
+  for (const x of [20, 46]) {
+    ctx.beginPath()
+    ctx.moveTo(x, 34)
+    ctx.lineTo(x + 4, 31)
+    ctx.stroke()
+  }
+  // A smirk, in the glaze colour.
+  ctx.strokeStyle = glaze
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.moveTo(29, 55)
+  ctx.quadraticCurveTo(42, 63, 52, 52)
+  ctx.stroke()
+  ctx.restore()
+}
+
+const mugCache = new Map<string, CanvasTexture>()
+
+/**
+ * A glazed mug's wrap: one solid glaze colour, and — printed — "main
+ * character energy" set small in white on the front (u = 0.5), the way the
+ * reference mugs carry a single mark, with the mascot in shades under it. `aspect` is the wrap's width over its
+ * height, so the type keeps its shape on a stubby mug.
+ */
+export function glazeTexture(colour: string, printed: boolean, aspect: number): CanvasTexture {
+  const key = `${colour}|${printed}|${aspect.toFixed(2)}`
+  const hit = mugCache.get(key)
+  if (hit) return hit
+  const w = 1024
+  const h = Math.round(w / aspect)
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const paint = () => {
+    const ctx = canvas.getContext('2d') as Ctx
+    fill(ctx, w, h, colour)
+    if (!printed) return
+    const px = h * 0.15
+    setFont(ctx, 800, px, display())
+    if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.03 * px}px`
+    ctx.fillStyle = '#FFFFFF'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    const lines = ['main', 'character', 'energy.']
+    // The type sits a little high, leaving room for the mascot under it.
+    lines.forEach((line, i) => ctx.fillText(line, w * 0.5, h * 0.36 + (i - 1) * px * 0.95))
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
+    coolMascot(ctx, w * 0.5, h * 0.74, h * 0.22, colour)
+  }
+  paint()
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  mugCache.set(key, texture)
+  if (printed) {
+    document.fonts.ready.then(() => {
+      paint()
+      texture.needsUpdate = true
+    })
+  }
+  return texture
 }
