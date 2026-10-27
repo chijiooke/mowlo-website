@@ -10,8 +10,7 @@ import { Reveal } from '@/components/Reveal'
 import { Eyebrow } from '@/components/type/Type'
 import { PhoneScreen } from '@/components/sections/mobile-app/MobileApp'
 import { DropScreen } from '@/components/sections/creators/DropScreen'
-import { WaitlistCTA } from '@/components/WaitlistForm'
-import { APPLY_URL } from '@/lib/links'
+import { APPLY_URL, PRINT_URL } from '@/lib/links'
 import { button } from '@/components/ui/button'
 import { Handset } from '@/components/ui/Handset'
 import { PillPattern } from '@/components/ui/PillPattern'
@@ -130,7 +129,9 @@ export function Quality({ variant = 'print' }: { variant?: keyof typeof COPY }) 
                 Apply to sell →
               </a>
             ) : (
-              <WaitlistCTA className={button.ink} label="Download the app →" source="quality" />
+              <a href={PRINT_URL} className={button.ink}>
+                Start printing →
+              </a>
             )}
           </Reveal>
         </header>

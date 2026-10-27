@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { Container } from "@/components/layout/Container";
 import { button } from "@/components/ui/button";
-import { useWaitlist } from "@/components/WaitlistForm";
+import { PRINT_URL } from "@/lib/links";
 import { useReduce } from "@/lib/motion";
 import { BrandedCarousel } from "./BrandedCarousel";
 
@@ -22,7 +22,6 @@ const EASE = [0.16, 1, 0.3, 1] as const;
  */
 export function BusinessLanding() {
   const reduce = useReduce();
-  const openWaitlist = useWaitlist();
 
   return (
     <section
@@ -70,17 +69,16 @@ export function BusinessLanding() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => openWaitlist("business-landing")}
+              <a
+                href={PRINT_URL}
                 className={clsx(
                   button.ink,
                   "px-5 py-3 text-[15px] whitespace-nowrap",
                 )}
               >
-                Download the app
+                Start printing
                 <Icon icon="lucide:arrow-right" width={18} aria-hidden="true" />
-              </button>
+              </a>
               <a
                 href="#products"
                 className="inline-flex items-center justify-center rounded-full border border-ink/25 px-5 py-3 whitespace-nowrap text-[15px] font-semibold text-ink transition duration-150 hover:bg-ink/5"

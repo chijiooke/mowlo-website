@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
-import { APPLY_URL } from '@/lib/links'
+import { APP_URL } from '@/lib/links'
 import { MowloLogo } from './MowloLogo'
 
 /* Print partners is hidden from the nav for now — the page is still reachable
@@ -40,7 +40,7 @@ export function Nav() {
         </div>
 
         <div className="nav-right">
-          <a className="btn-a" href={APPLY_URL}>
+          <a className="btn-a" href={APP_URL}>
             Use Mowlo
           </a>
           <button
@@ -69,7 +69,7 @@ export function Nav() {
                 {l.label}
               </Link>
             ))}
-            <a className="btn-a" href={APPLY_URL}>
+            <a className="btn-a" href={APP_URL}>
               Use Mowlo →
             </a>
           </motion.div>

@@ -9,8 +9,8 @@ import { PopLetters } from './type/PopLetters'
 import { Reveal } from './Reveal'
 import { ProductCard } from './ProductCard'
 import { ProductDeck } from './ProductDeck'
-import { PRODUCTS, productSource, type Product } from './products'
-import { useWaitlist } from './WaitlistForm'
+import { PRODUCTS, type Product } from './products'
+import { PRINT_URL } from '@/lib/links'
 
 /** Widest gap between neighbouring cards, as a share of one card's width. */
 const MAX_SPREAD = 62
@@ -73,11 +73,11 @@ export function ProductsSection({
   onOpen,
   id = 'products',
 }: ProductsSectionProps) {
-  const openWaitlist = useWaitlist()
   // A six-card fan has nowhere to open on a phone, so the phone gets a deck
   // instead — a different component, not the same one in a different pose.
   const isPhone = useMediaQuery('(max-width: 640px)')
-  const open = onOpen ?? ((p: Product) => openWaitlist(productSource(p)))
+  // The print line's cards go to ordering in the web app.
+  const open = onOpen ?? (() => window.location.assign(PRINT_URL))
 
   return (
     <section id={id} className="section deck-stage">

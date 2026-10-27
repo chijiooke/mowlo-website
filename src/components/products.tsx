@@ -66,8 +66,6 @@ export const PRODUCTS: Product[] = CATALOGUE.map(({ deco, ...p }) => ({ ...p, Bl
 /** The custom properties a card paints itself with. */
 export const cardVars = (p: Product) => ({ ['--bg']: p.bg }) as CSSProperties
 
-/** Analytics tag for a card, e.g. `product-business-cards`. */
-export const productSource = (p: Product) => `product-${p.name.toLowerCase().replace(/\s+/g, '-')}`
 
 /**
  * The Creators line, as cards — same faces, colourways run in the brand order

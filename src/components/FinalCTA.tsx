@@ -1,6 +1,7 @@
 import { Reveal } from './Reveal'
 import { MowloLogo } from './MowloLogo'
 import { WaitlistCTA } from './WaitlistForm'
+import { PRINT_URL } from '@/lib/links'
 
 interface FinalCTAProps {
   /** Two hand-broken lines. */
@@ -16,7 +17,7 @@ interface FinalCTAProps {
 export function FinalCTA({
   lines = ['Small business.', 'Big brand energy.'],
   body = 'Your customer should never guess how small you are.',
-  cta = { label: 'Download the app →', waitlist: 'final-cta' },
+  cta = { label: 'Start printing →', href: PRINT_URL },
   panel,
 }: FinalCTAProps) {
   return (

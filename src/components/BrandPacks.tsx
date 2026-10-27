@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { Reveal } from './Reveal'
 import { SavingsPig } from './SavingsPig'
-import { WaitlistCTA } from './WaitlistForm'
+import { PRINT_URL } from '@/lib/links'
 import { Stamp } from './ui/Stamp'
 
 /**
@@ -79,7 +79,9 @@ export function BrandPacks() {
                   ))}
                 </ul>
 
-                <WaitlistCTA className="pack-btn" label="Download the app →" source="brand-packs" />
+                <a className="pack-btn" href={PRINT_URL}>
+                  Start printing →
+                </a>
 
                 <p className="pack-alt">
                   Three sizes: the bigger the bundle, the bigger the saving.
