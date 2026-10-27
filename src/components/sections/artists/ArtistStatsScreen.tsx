@@ -78,16 +78,10 @@ export function ArtistStatsScreen() {
           <span className="text-[9px] font-semibold tracking-[0.08em] text-ink/75 uppercase">Wallet balance</span>
           <Icon icon="lucide:eye" width={12} className="text-ink/60" />
         </div>
-        <div className="mt-1 font-display text-[24px] leading-none font-extrabold tracking-[-0.03em] text-ink tabular-nums">
-          <span className="mr-0.5 text-[16px] align-[0.32em]">₦</span>1,340,000<span className="text-[15px] text-ink/50">.00</span>
+        <div className="mt-1 font-display text-[24px] leading-none font-extrabold tracking-[-0.03em] text-white tabular-nums">
+          <span className="mr-0.5 text-[16px] align-[0.32em]">₦</span>1,340,000<span className="text-[15px] text-white/60">.00</span>
         </div>
-        <div className="mt-3 flex items-center justify-between">
-          {/* Ledger: money earned but not yet paid out — it lands once the drop closes and delivers. */}
-          <span className="leading-tight">
-            <span className="block text-[8px] font-semibold tracking-[0.06em] text-white/70 uppercase">Ledger balance</span>
-            <span className="block text-[11px] font-bold text-white tabular-nums">₦620,000</span>
-            <span className="block text-[8px] text-white/70">Lands after the drop closes &amp; delivers</span>
-          </span>
+        <div className="mt-3 flex justify-end">
           <span className="rounded-full bg-ink px-3 py-1.5 text-[10px] font-bold text-white">Withdraw</span>
         </div>
       </div>
