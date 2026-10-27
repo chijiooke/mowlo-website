@@ -4,7 +4,7 @@ import { useRef, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import clsx from 'clsx'
 import { Icon } from '@iconify/react'
-import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useTransform, type MotionValue } from 'framer-motion'
 import { Chapter } from '@/components/layout/Chapter'
 import { Container } from '@/components/layout/Container'
 import { SceneView } from '@/components/three/SceneView'
@@ -14,7 +14,7 @@ import { useWaitlist } from '@/components/WaitlistForm'
 import { useReduce } from '@/lib/motion'
 import { track, useSectionProgress } from '@/lib/scroll/useSectionProgress'
 import { useMediaQuery } from '@/lib/useMediaQuery'
-import { COPY_OUT, CUE_OUT, FILL, LANDING_STILL, WORD_OUT, type LandingVariant } from './beats'
+import { COPY_IN, COPY_OUT, CUE_OUT, FILL, LANDING_STILL, WORD_OUT, type LandingVariant } from './beats'
 
 // Keeps three.js out of the page bundle; it arrives with the canvas.
 const LandingScene = dynamic(() => import('./LandingScene'), { ssr: false })
@@ -28,6 +28,9 @@ const TRACK = {
   print: 'h-[220vh] md:h-[260vh]',
   merch: 'h-[340vh] md:h-[420vh]',
 }
+
+/** The hero's buttons, a size down: the word and the objects carry the screen. */
+const HERO_BUTTON = 'px-5 py-3 text-[15px]'
 
 interface LandingProps {
   /** What sails past behind the name: printed paper, or a creator's merch. */
@@ -66,6 +69,10 @@ export function Landing({ variant, title, showTitle = false, lede, cta, secondar
   // box, and the line box is tighter than the letters, so `inset(0%)` would
   // leave the tops and tails of the word unfilled.
   const fill = useTransform(progress, ...track(FILL, ['inset(100% -6% -20% -6%)', 'inset(-20% -6% -20% -6%)']))
+  // Print shows its copy from the start; merch keeps the first screen to the
+  // word and the tee, and brings the copy in part by part once you scroll
+  // (see Rise). Both clear together at the end.
+  const enters = variant === 'merch'
   const copy = useTransform(progress, ...track(COPY_OUT, [1, 0]))
   const copyY = useTransform(progress, ...track(COPY_OUT, [0, -28]))
   // Hidden, not just transparent, so a faded CTA cannot take keyboard focus.
@@ -99,31 +106,35 @@ export function Landing({ variant, title, showTitle = false, lede, cta, secondar
           className="pointer-events-auto absolute inset-x-0 bottom-0 pb-6 md:pb-12"
         >
           <Container className="flex md:justify-end">
-            <div className="w-full md:max-w-md">
+            <div className="w-full md:max-w-sm">
               {showTitle && (
-                // Full-width face, set like the parade finale and the closing CTA,
-                // so the poster word above is the only condensed type on screen.
-                <h1 className="mb-4 max-w-[14ch] font-display text-[clamp(2rem,3.4vw,2.75rem)] leading-[1.02] font-extrabold tracking-[-0.04em] text-bone">
-                  {title}
-                </h1>
+                <Rise progress={progress} range={enters ? COPY_IN[0] : null}>
+                  {/* Set like the section heads ("Premium quality. Guaranteed."): the
+                      body face, semibold, so the poster word above is the only display type on screen. */}
+                  <h1 className="mb-3 max-w-[15ch] font-body text-[clamp(1.6rem,2.5vw,2.15rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-bone">
+                    {title}
+                  </h1>
+                </Rise>
               )}
-              <p className="mb-5 max-w-[34ch] text-base leading-relaxed text-bone/70 md:mb-6 md:text-lead">{lede}</p>
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <Rise progress={progress} range={enters ? COPY_IN[1] : null}>
+                <p className="mb-5 max-w-[36ch] text-[15px] leading-relaxed text-bone/65">{lede}</p>
+              </Rise>
+              <Rise progress={progress} range={enters ? COPY_IN[2] : null} className="flex flex-col gap-3 sm:flex-row">
                 {'href' in cta ? (
-                  <a href={cta.href} className={button.primary}>
+                  <a href={cta.href} className={clsx(button.primary, HERO_BUTTON)}>
                     {cta.label}
                     <Icon icon="lucide:arrow-right" width={18} aria-hidden="true" />
                   </a>
                 ) : (
-                  <button type="button" className={button.primary} onClick={() => openWaitlist(cta.waitlist)}>
+                  <button type="button" className={clsx(button.primary, HERO_BUTTON)} onClick={() => openWaitlist(cta.waitlist)}>
                     {cta.label}
                     <Icon icon="lucide:arrow-right" width={18} aria-hidden="true" />
                   </button>
                 )}
-                <a href={secondary.href} className={clsx(button.ghost, 'hidden sm:inline-flex')}>
+                <a href={secondary.href} className={clsx(button.ghost, HERO_BUTTON, 'hidden sm:inline-flex')}>
                   {secondary.label}
                 </a>
-              </div>
+              </Rise>
             </div>
           </Container>
         </motion.div>
@@ -142,3 +153,33 @@ export function Landing({ variant, title, showTitle = false, lede, cta, secondar
     </Chapter>
   )
 }
+
+/**
+ * One part of the landing copy. With a range it rises, fades and sharpens in
+ * over that slice of the landing (and is hidden before it, so a button can't
+ * take focus unseen); without one it simply sits there.
+ */
+function Rise({
+  progress,
+  range,
+  className,
+  children,
+}: {
+  progress: MotionValue<number>
+  range: [number, number] | null
+  className?: string
+  children: ReactNode
+}) {
+  // No range: a flat 0–1 span (a zero-width one would divide by zero).
+  const [from, to] = range ?? [0, 1]
+  const opacity = useTransform(progress, [from, to], range ? [0, 1] : [1, 1])
+  const y = useTransform(progress, [from, to], range ? [22, 0] : [0, 0])
+  const filter = useTransform(progress, [from, to], range ? ['blur(6px)', 'blur(0px)'] : ['blur(0px)', 'blur(0px)'])
+  const visibility = useTransform(progress, v => (!range || v > from ? 'visible' : 'hidden'))
+  return (
+    <motion.div style={{ opacity, y, filter, visibility }} className={className}>
+      {children}
+    </motion.div>
+  )
+}
+

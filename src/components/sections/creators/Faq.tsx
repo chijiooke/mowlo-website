@@ -19,7 +19,7 @@ const QUESTIONS = [
   },
   {
     q: 'What does it cost me?',
-    a: 'Nothing up front. You set the price for each item; production comes out of each sale, and you earn on everything above it.',
+    a: 'Nothing up front. You set the price for each item; production cost comes out of each sale, and you earn on everything above it.',
   },
   {
     q: 'What can I sell?',
@@ -35,7 +35,7 @@ const QUESTIONS = [
   },
   {
     q: 'Who packs and delivers?',
-    a: 'We do, to every buyer. If you’d rather pack and hand the drop out yourself, you can choose that when you set it up — your buyers see it before they pay.',
+    a: 'We do, to every buyer. If you’d rather pack and hand the drop out yourself, you can choose that when you set it up, and your buyers see it before they pay.',
   },
   {
     q: 'Who can apply?',

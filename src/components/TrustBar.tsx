@@ -1,3 +1,5 @@
+import clsx from 'clsx'
+
 /**
  * Scrolling trust marquee. Also carries the AI points that used to have
  * sections of their own.
@@ -5,7 +7,7 @@
 const PRINT_ITEMS = [
   '24hr Lagos delivery',
   'AI brand kit in minutes',
-  'Order 25 or 500 — your call',
+  'Order 25 or 500, your call',
   'One-tap reorder',
   'Your brand profile, saved for next time',
   'No designer. No Computer Village. No wahala.',
@@ -55,11 +57,22 @@ const STOCK: React.CSSProperties = {
   padding: '17px 0',
 }
 
+/**
+ * On the Creators page the tape runs between two cream chapters, so it sits on
+ * cream, no band of its own behind it, with a shadow soft enough for a light
+ * ground. The print page's runs between ink chapters and keeps its ink band.
+ */
+const ON_CREAM: React.CSSProperties = {
+  ...TAPE,
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.12), 0 10px 22px rgba(10,10,11,0.16)',
+}
+
 export function TrustBar({ variant = 'print' }: { variant?: 'print' | 'merch' }) {
   const items = variant === 'merch' ? MERCH_ITEMS : PRINT_ITEMS
+  const cream = variant === 'merch'
   return (
-    <div className="overflow-hidden bg-ink py-9">
-      <div className="marquee -mx-[2%] w-[104%] -rotate-[1.6deg]" style={TAPE}>
+    <div className={clsx('overflow-hidden py-9', cream ? 'bg-cream' : 'bg-ink')}>
+      <div className="marquee -mx-[2%] w-[104%] -rotate-[1.6deg]" style={cream ? ON_CREAM : TAPE}>
         {/* The list is rendered twice so the -50% translation loops seamlessly. */}
         <div className="marquee-track" style={STOCK}>
           {[0, 1].map(copy => (

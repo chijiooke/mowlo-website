@@ -451,7 +451,7 @@ const PRINTED: Record<Face, Draw> = {
     poster(ctx, ['BIG', 'BRAND', 'ENERGY.'], pad, h * 0.24, h * 0.14, C.ink, w - pad * 2, 'left', 0.82)
     mascot(ctx, w * 0.76, block, w * 0.4, 0.14)
     poster(ctx, ['Stickers · Cards · Flyers', 'Bags · Mugs · Tees'], pad, h * 0.76, h * 0.042, C.ink, w * 0.6, 'left', 1.1)
-    label(ctx, 'Designed, printed & delivered — Nigeria & Ghana', pad, h - pad, w * 0.028, 'rgba(10, 10, 11, 0.6)', 'left', 500)
+    label(ctx, 'Designed, printed & delivered · Nigeria & Ghana', pad, h - pad, w * 0.028, 'rgba(10, 10, 11, 0.6)', 'left', 500)
     grainOver(ctx, w, h, 0.05)
   },
 
@@ -721,19 +721,21 @@ export function paperBump(): CanvasTexture {
 }
 
 /**
- * The mascot in shades, as a one-colour print: a white body, the glaze
- * showing through as the lenses' outline and the smile, so it reads as the
- * same white ink as the type.
+ * The mascot in shades: the brand-yellow body with a thin white keyline (so
+ * it still reads on the amber mug), black shades and an ink smirk.
  */
-function coolMascot(ctx: Ctx, cx: number, cy: number, size: number, glaze: string) {
+function coolMascot(ctx: Ctx, cx: number, cy: number, size: number) {
   bodyPath ??= new Path2D(MOWLO_BODY_PATH)
   const s = size / MASCOT_BOUNDS.w
   ctx.save()
   ctx.translate(cx, cy)
   ctx.scale(s, s)
   ctx.translate(-(MASCOT_BOUNDS.x + MASCOT_BOUNDS.w / 2), -(MASCOT_BOUNDS.y + MASCOT_BOUNDS.h / 2))
-  ctx.fillStyle = '#FFFFFF'
+  ctx.fillStyle = C.amber
   ctx.fill(bodyPath)
+  ctx.strokeStyle = '#FFFFFF'
+  ctx.lineWidth = 3
+  ctx.stroke(bodyPath)
   // Shades: two rounded lenses on a bridge, across where the eyes sit.
   ctx.fillStyle = C.ink
   const lens = (x: number) => {
@@ -754,8 +756,8 @@ function coolMascot(ctx: Ctx, cx: number, cy: number, size: number, glaze: strin
     ctx.lineTo(x + 4, 31)
     ctx.stroke()
   }
-  // A smirk, in the glaze colour.
-  ctx.strokeStyle = glaze
+  // A smirk, in ink.
+  ctx.strokeStyle = C.ink
   ctx.lineWidth = 3
   ctx.beginPath()
   ctx.moveTo(29, 55)
@@ -795,7 +797,7 @@ export function glazeTexture(colour: string, printed: boolean, aspect: number): 
     // The type sits a little high, leaving room for the mascot under it.
     lines.forEach((line, i) => ctx.fillText(line, w * 0.5, h * 0.36 + (i - 1) * px * 0.95))
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
-    coolMascot(ctx, w * 0.5, h * 0.74, h * 0.22, colour)
+    coolMascot(ctx, w * 0.5, h * 0.74, h * 0.22)
   }
   paint()
   const texture = new CanvasTexture(canvas)

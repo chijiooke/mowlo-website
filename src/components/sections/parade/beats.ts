@@ -26,7 +26,7 @@ export interface Piece {
 
 export const PIECES: Record<ParadeVariant, Piece[]> = {
   print: [
-    { id: 'card', name: 'Business cards', short: 'Cards', spec: '85×55mm — matte, gloss, soft-touch or holographic.', dot: 'bg-amber' },
+    { id: 'card', name: 'Business cards', short: 'Cards', spec: '85×55mm: matte, gloss, soft-touch or holographic.', dot: 'bg-amber' },
     { id: 'stickers', name: 'Stickers', short: 'Stickers', spec: 'Round, square, or die-cut to any shape you draw.', dot: 'bg-teal' },
     { id: 'tee', name: 'Tee shirts', short: 'Tees', spec: 'S–XXL, DTF print.', dot: 'bg-lime' },
   ],

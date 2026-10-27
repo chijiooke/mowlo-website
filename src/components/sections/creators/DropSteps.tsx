@@ -36,7 +36,7 @@ const STEPS: Step[] = [
     n: '01',
     phase: 'Prep',
     title: 'Cook up the design',
-    body: 'Tees, caps, socks, stickers — pick what fits your vibe and upload your art. Got mockups? Throw them in too.',
+    body: 'Tees, caps, socks, stickers: pick what fits your vibe and upload your art. Got mockups? Throw them in too.',
     icon: 'lucide:pen-tool',
     tint: 'bg-amber text-ink',
     photo: '/assets/creators-step-design.jpg',
@@ -61,7 +61,7 @@ const STEPS: Step[] = [
     n: '03',
     phase: 'Live',
     title: 'Your people cop it',
-    body: 'Your drop gets its own shop. Put the link in your bio, your stories, the group chat — orders roll in till the timer hits zero or it sells out.',
+    body: 'Your drop gets its own shop. Put the link in your bio, your stories, the group chat. Orders roll in till the timer hits zero or it sells out.',
     icon: 'lucide:shopping-bag',
     tint: 'bg-pink text-ink',
     photo: '/assets/creators-step-cop.jpg',
@@ -199,23 +199,24 @@ function FillLine({ text, index, progress, accent }: { text: string; index: numb
   const third = FILL_END / LINES.length
   const from = index * third
   // A function transform, worked out in JS: an accelerated clip runs ahead of the scroll (see useScrub).
-  const clipPath = useTransform(progress, p => `inset(-10% ${100 - 100 * Math.min(1, Math.max(0, (p - from) / third))}% -45% -2%)`)
+  const clipPath = useTransform(progress, p => `inset(-40% ${100 - 100 * Math.min(1, Math.max(0, (p - from) / third))}% -45% -2%)`)
   const outline = accent
     ? '[-webkit-text-stroke:1.5px_rgb(245_166_35_/_0.55)]'
     : '[-webkit-text-stroke:1.5px_rgb(10_10_11_/_0.2)]'
-  // The outline carries the same end padding the shimmer adds (for the italic's
-  // overhang), so both copies are one width; nowrap holds each to one line.
-  // Both copies also reach below the line (without moving it): the shimmer is a
-  // background clipped to the glyphs, and the italic p's tail hangs past the
-  // box, where there's no background to show — it stayed an outline.
-  const body = accent ? <Accent className="-mb-[0.25em] inline-block pe-[0.12em] pb-[0.25em]">{text}</Accent> : text
+  // The outline carries exactly the box the shimmer gives itself (padding past
+  // the script's overhang, cancelled by negative margins), so both copies land
+  // on the same spot; nowrap holds each to one line.
+  // Both copies also reach above and below the line (without moving it): the
+  // shimmer is a background clipped to the glyphs, and the script's tall
+  // strokes and the p's tail hang past the box, where there's no background.
+  const body = accent ? <Accent className="inline-block -ms-[0.12em] -mt-[0.2em] -mb-[0.22em] px-[0.12em] pt-[0.2em] pb-[0.22em]">{text}</Accent> : text
 
   return (
     <>
       <span aria-hidden="true" className="relative inline-block whitespace-nowrap">
         <span className={clsx('inline-block text-transparent', outline)}>{body}</span>
         <motion.span style={{ clipPath }} className="absolute inset-0 inline-block">
-          {accent ? <Accent className="-mb-[0.25em] inline-block pb-[0.25em] text-shimmer">{text}</Accent> : text}
+          {accent ? <Accent className="inline-block text-shimmer">{text}</Accent> : text}
         </motion.span>
       </span>
       {index < LINES.length - 1 && (

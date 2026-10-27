@@ -11,18 +11,35 @@ import { MERCH } from '@/lib/merch'
  * The mock drop is Mowlo's own: the mascot on Mowlo's own merch, never an
  * invented creator brand (art direction §6). Counts only — no prices.
  */
-const ITEMS = [
-  { name: MERCH.tee.name, left: 18, icon: 'lucide:shirt', tone: 'bg-pink/15 text-pink' },
-  // Lucide has no cap or sock; Phosphor's sit with it at the same weight.
-  { name: MERCH.cap.name, left: 32, icon: 'ph:baseball-cap', tone: 'bg-purple/20 text-purple' },
-  { name: MERCH.socks.name, left: 45, icon: 'ph:sock', tone: 'bg-amber/15 text-amber' },
-]
+const DROPS = {
+  merch: {
+    store: 'Creator Store',
+    title: 'The Mascot Drop',
+    items: [
+      { name: MERCH.tee.name, left: '18 left', icon: 'lucide:shirt', tone: 'bg-pink/15 text-pink' },
+      // Lucide has no cap or sock; Phosphor's sit with it at the same weight.
+      { name: MERCH.cap.name, left: '32 left', icon: 'ph:baseball-cap', tone: 'bg-purple/20 text-purple' },
+      { name: MERCH.socks.name, left: '45 left', icon: 'ph:sock', tone: 'bg-amber/15 text-amber' },
+    ],
+  },
+  /** Artist's Corner: a numbered edition up top, the merch cut from the same piece under it. */
+  art: {
+    store: 'Artist’s Corner',
+    title: 'Space Boy',
+    items: [
+      { name: 'Framed print', left: '12 of 50 left', icon: 'lucide:frame', tone: 'bg-amber/15 text-amber' },
+      { name: MERCH.sticker.name, left: '64 left', icon: 'lucide:sticker', tone: 'bg-pink/15 text-pink' },
+      { name: MERCH.keyholder.name, left: '30 left', icon: 'lucide:key-round', tone: 'bg-teal/15 text-teal' },
+    ],
+  },
+}
 
 /** Where the countdown starts: 2d 14h 08m 30s. It only ever counts down from here. */
 const WINDOW_SECONDS = 2 * 86400 + 14 * 3600 + 8 * 60 + 30
 
 /** A fan's view of a live drop, after the real page in mowlo-web-app (PublicDropPage). */
-export function DropScreen() {
+export function DropScreen({ variant = 'merch' }: { variant?: keyof typeof DROPS }) {
+  const drop = DROPS[variant]
   const left = useCountdown(WINDOW_SECONDS)
   const d = Math.floor(left / 86400)
   const h = Math.floor((left % 86400) / 3600)
@@ -47,12 +64,12 @@ export function DropScreen() {
         </span>
         <div>
           <div className="text-[13px] font-bold">@mowlo</div>
-          <div className="text-[9.5px] text-muted">Creator Store</div>
+          <div className="text-[9.5px] text-muted">{drop.store}</div>
         </div>
       </div>
 
       <div className="px-4">
-        <div className="font-display text-[22px] leading-tight font-extrabold tracking-[-0.02em]">The Mascot Drop</div>
+        <div className="font-display text-[22px] leading-tight font-extrabold tracking-[-0.02em]">{drop.title}</div>
         <div className="mt-3 rounded-2xl border border-amber/30 bg-amber/10 px-3 py-2.5">
           <div className="text-[9px] font-bold tracking-[0.08em] text-amber uppercase">Orders close in</div>
           <div className="mt-0.5 font-display text-[20px] font-extrabold tracking-[-0.02em] tabular-nums">
@@ -63,13 +80,13 @@ export function DropScreen() {
       </div>
 
       <ul className="flex flex-1 flex-col gap-2 px-4 pt-3">
-        {ITEMS.map(item => (
+        {drop.items.map(item => (
           <li key={item.name} className="flex items-center gap-2.5 rounded-[14px] border border-bone/10 bg-ink-2 px-3 py-2.5">
             <span className={clsx('flex size-8 shrink-0 items-center justify-center rounded-[10px]', item.tone)}>
               <Icon icon={item.icon} width={16} />
             </span>
             <span className="min-w-0 flex-1 text-[12px] font-semibold">{item.name}</span>
-            <span className="text-[10px] text-muted">{item.left} left</span>
+            <span className="text-[10px] text-muted">{item.left}</span>
           </li>
         ))}
       </ul>

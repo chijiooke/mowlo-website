@@ -6,12 +6,12 @@ import { PartnerForm } from "@/components/PartnerForm";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mowlo.co";
 
 export const metadata: Metadata = {
-  title: "Print Partners — Join the Mowlo Network",
+  title: "Print Partners: Join the Mowlo Network",
   description:
     "Partner with Mowlo to print for small businesses in your city. Earn extra income, steady clients, print-ready files every time.",
   alternates: { canonical: `${SITE_URL}/partners` },
   openGraph: {
-    title: "Print Partners — Join the Mowlo Network",
+    title: "Print Partners: Join the Mowlo Network",
     description:
       "We send you clients. You print. Earn extra income by joining Mowlo's print partner network in Nigeria.",
     url: `${SITE_URL}/partners`,
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Print Partners — Join the Mowlo Network",
+    title: "Print Partners: Join the Mowlo Network",
     description:
       "We send you clients. You print. Join Mowlo's print partner network.",
     images: [`${SITE_URL}/og-partners.png`],
@@ -38,25 +38,25 @@ const benefits = [
     icon: "💰",
     color: "rgba(245,166,35,0.1)",
     title: "Steady extra income",
-    body: "Receive Mowlo orders directly — no more slow periods waiting for walk-ins.",
+    body: "Receive Mowlo orders directly. No more slow periods waiting for walk-ins.",
   },
   {
     icon: "📦",
     color: "rgba(31,184,158,0.1)",
     title: "Jobs matched to your equipment",
-    body: "We only send you orders your machine can handle — no awkward declines.",
+    body: "We only send you orders your machine can handle, so no awkward declines.",
   },
   {
     icon: "🎨",
     color: "rgba(124,92,191,0.1)",
     title: "Print-ready files, always",
-    body: "Every job comes with professional, pre-approved designs — straight to print.",
+    body: "Every job comes with professional, pre-approved designs, straight to print.",
   },
   {
     icon: "💬",
     color: "rgba(42,159,214,0.1)",
     title: "Managed on WhatsApp",
-    body: "Orders, payments, and delivery — all coordinated through WhatsApp. Simple.",
+    body: "Orders, payments and delivery, all coordinated through WhatsApp. Simple.",
   },
 ];
 

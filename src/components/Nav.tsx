@@ -6,33 +6,22 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
 import { APPLY_URL } from '@/lib/links'
 import { MowloLogo } from './MowloLogo'
-import { WaitlistCTA } from './WaitlistForm'
 
 /* Print partners is hidden from the nav for now — the page is still reachable
    by URL and from the footer. Links run in the order the sections appear on
-   the page, then the other side of the site. */
-const LINKS = {
-  creators: [
-    { href: '/#drops', label: 'How drops work' },
-    { href: '/#merch', label: 'What you can sell' },
-    { href: '/#paid', label: 'Getting paid' },
-    { href: '/#faq', label: 'FAQ' },
-    { href: '/gallery', label: "Artist's Corner" },
-    { href: '/print', label: 'For business' },
-  ],
-  print: [
-    { href: '/print#how', label: 'How it works' },
-    { href: '/print#products', label: 'Products' },
-    { href: '/print#packs', label: 'Brand Packs' },
-    { href: '/print#app', label: 'Mobile app' },
-    { href: '/', label: 'For creators' },
-  ],
-}
+   the home page, then the other sides of the site. One nav for every page. */
+const LINKS = [
+  { href: '/#drops', label: 'How drops work' },
+  { href: '/#merch', label: 'What you can sell' },
+  { href: '/#paid', label: 'Getting paid' },
+  { href: '/#faq', label: 'FAQ' },
+  { href: '/artists', label: "Artist's Corner" },
+  { href: '/print', label: 'For business' },
+]
 
-/** Creators is the default side of the site; `/print` passes `print`. */
-export function Nav({ variant = 'creators' }: { variant?: keyof typeof LINKS }) {
+export function Nav() {
   const [open, setOpen] = useState(false)
-  const links = LINKS[variant]
+  const links = LINKS
 
   return (
     <>
@@ -51,13 +40,9 @@ export function Nav({ variant = 'creators' }: { variant?: keyof typeof LINKS }) 
         </div>
 
         <div className="nav-right">
-          {variant === 'creators' ? (
-            <a className="btn-a" href={APPLY_URL}>
-              Apply to sell
-            </a>
-          ) : (
-            <WaitlistCTA className="btn-a" label="Download the app" source="nav" />
-          )}
+          <a className="btn-a" href={APPLY_URL}>
+            Use Mowlo
+          </a>
           <button
             type="button"
             className="nav-burger"
@@ -84,13 +69,9 @@ export function Nav({ variant = 'creators' }: { variant?: keyof typeof LINKS }) 
                 {l.label}
               </Link>
             ))}
-            {variant === 'creators' ? (
-              <a className="btn-a" href={APPLY_URL}>
-                Apply to sell →
-              </a>
-            ) : (
-              <WaitlistCTA className="btn-a" label="Download the app →" source="nav-drawer" />
-            )}
+            <a className="btn-a" href={APPLY_URL}>
+              Use Mowlo →
+            </a>
           </motion.div>
         )}
       </AnimatePresence>

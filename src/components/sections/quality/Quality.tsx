@@ -26,20 +26,31 @@ interface Service {
 
 /** What Mowlo actually does, in the order a customer meets it. */
 const PRINT_SERVICES: Service[] = [
-  { name: 'Quality prints', note: 'Cards, stickers, flyers, tees — cut and finished the way you chose.', icon: 'lucide:printer', tint: 'bg-amber text-ink' },
+  { name: 'Quality prints', note: 'Cards, stickers, flyers, tees, cut and finished the way you chose.', icon: 'lucide:printer', tint: 'bg-amber text-ink' },
   { name: 'AI designer', note: 'Answer five questions; get a logo, palette and print-ready layouts.', icon: 'lucide:sparkles', tint: 'bg-teal text-ink' },
   { name: 'Creator store', note: 'Sell the merch you print, from a page of your own.', icon: 'lucide:store', tint: 'bg-pink text-ink' },
-  { name: 'Tracked delivery', note: '24hrs in Lagos, 2–3 days elsewhere — tracked the whole way.', icon: 'lucide:truck', tint: 'bg-sky text-ink' },
+  { name: 'Tracked delivery', note: '24hrs in Lagos, 2–3 days elsewhere, tracked the whole way.', icon: 'lucide:truck', tint: 'bg-sky text-ink' },
   { name: 'Repeat orders', note: 'Reorder in one tap, or set it to repeat.', icon: 'lucide:repeat-2', tint: 'bg-lime text-ink' },
 ]
 
 /** What a creator hands over: everything between posting the link and the parcel. */
 const MERCH_SERVICES: Service[] = [
+  { name: 'Sample review', note: 'Your call: see and touch every piece before it goes live.', icon: 'lucide:scan-eye', tint: 'bg-lime text-ink' },
   { name: 'Your drop shop', note: 'One link for your bio, with a countdown to close.', icon: 'lucide:link', tint: 'bg-amber text-ink' },
   { name: 'Checkout', note: 'Your people pay on the page. Stock is held while they do.', icon: 'lucide:credit-card', tint: 'bg-teal text-ink' },
   { name: 'Printing', note: 'Exactly what sold, by our print partners, once the drop closes.', icon: 'lucide:printer', tint: 'bg-pink text-ink' },
-  { name: 'Packing', note: 'By us — or pack and hand it out yourself, if that’s your thing.', icon: 'lucide:package', tint: 'bg-purple text-white' },
+  { name: 'Packing', note: 'By us, or pack and hand it out yourself if that’s your thing.', icon: 'lucide:package', tint: 'bg-purple text-white' },
   { name: 'Delivery', note: 'To every buyer, tracked the whole way.', icon: 'lucide:truck', tint: 'bg-sky text-ink' },
+]
+
+/** What an artist hands over: everything between the upload and the wall. */
+const ART_SERVICES: Service[] = [
+  { name: 'Proof first', note: 'Your call: we print one and send it to you before the drop opens.', icon: 'lucide:scan-eye', tint: 'bg-lime text-ink' },
+  { name: 'Your edition', note: 'You set how many exist. When they’re gone, they’re gone.', icon: 'lucide:hash', tint: 'bg-amber text-ink' },
+  { name: 'Checkout', note: 'Collectors pay on your drop page. Their print is held while they do.', icon: 'lucide:credit-card', tint: 'bg-teal text-ink' },
+  { name: 'Printing & framing', note: 'Exactly what sold, once the drop closes. Nothing printed on spec.', icon: 'lucide:frame', tint: 'bg-pink text-ink' },
+  { name: 'Packing', note: 'Packed to travel, so it arrives the way it left.', icon: 'lucide:package', tint: 'bg-purple text-white' },
+  { name: 'Delivery', note: 'To every collector, tracked the whole way.', icon: 'lucide:truck', tint: 'bg-sky text-ink' },
 ]
 
 /**
@@ -50,18 +61,26 @@ const COPY = {
   print: {
     lede: 'Cut to the line you drew, finished the way you chose, and packed the way it should arrive. It is your name on it, not ours.',
     card: { lead: 'Build the brand.', rest: 'Keep running the business.' },
-    cardBody: 'Choose what you need and get back to work. We print it and bring it to your door — no brief to write, no press to chase, nothing to collect.',
+    cardBody: 'Choose what you need and get back to work. We print it and bring it to your door. No brief to write, no press to chase, nothing to collect.',
     list: { lead: 'Everything we do.', rest: 'One place.' },
     services: PRINT_SERVICES,
     photo: { src: '/assets/quality-shop-owner.jpg', alt: 'A smiling shop owner holding up a bottle of their own product in store', focus: 'object-[38%_30%]' },
   },
   merch: {
     lede: 'Prints that look sharp and feel right, finished properly and packed the way they should arrive. Your name’s on it, so we treat it like ours.',
-    card: { lead: 'You post the link.', rest: 'We do the rest.' },
-    cardBody: 'Set the drop up once and get back to creating. No supplier to chase, no boxes in your living room, nothing to drive across town.',
+    card: { lead: 'Hold it first.', rest: 'Then drop it.' },
+    cardBody: 'Switch on sample review and we print one of every piece and send it to you before the drop goes live. Check the print, the colour, the feel. You only open it when you’re happy.',
     list: { lead: 'Everything we handle.', rest: 'All of it.' },
     services: MERCH_SERVICES,
     photo: { src: '/assets/side-hustle.jpg', alt: 'Two people looking over clothes on a rail in a store', focus: 'object-[40%_40%]' },
+  },
+  art: {
+    lede: 'Colour that matches what you made, paper that feels like it should, and a frame that does the work justice. Your name’s on the wall, so we treat it like ours.',
+    card: { lead: 'See the proof.', rest: 'Then drop it.' },
+    cardBody: 'Switch on proofing and we print and frame one before the drop opens, then send it to you. Check the colour, the paper, the frame. You only go live when it’s right.',
+    list: { lead: 'Everything we handle.', rest: 'All of it.' },
+    services: ART_SERVICES,
+    photo: { src: '/assets/artists-thumbs-up.jpg', alt: 'A smiling artist in a wheelchair giving two thumbs up beside his easel', focus: 'object-[48%_30%]' },
   },
 }
 
@@ -87,6 +106,8 @@ const CARD = 'rounded-[2rem] bg-white'
  */
 export function Quality({ variant = 'print' }: { variant?: keyof typeof COPY }) {
   const copy = COPY[variant]
+  // Creators and Artist's Corner share the drop: the apply link, the pattern card and the drop screen.
+  const drop = variant !== 'print'
   // The phone mock animates its toast off scroll in the Mobile app chapter.
   // Here it is a still: held at the end, so the toast is simply in place.
   const settled = useMotionValue(1)
@@ -96,7 +117,7 @@ export function Quality({ variant = 'print' }: { variant?: keyof typeof COPY }) 
       <Container>
         <header className="mb-12 grid gap-8 md:mb-16 md:grid-cols-12 md:items-end md:gap-12">
           <Reveal className="md:col-span-7">
-            <Eyebrow className={clsx('mb-5', variant === 'merch' ? 'text-ink/55' : 'text-amber-deep')}>Quality</Eyebrow>
+            <Eyebrow className={clsx('mb-5', drop ? 'text-ink/55' : 'text-amber-deep')}>Quality</Eyebrow>
             {/* Set like Getting paid's "Your price. Your earnings.": two lines, the second in grey. */}
             <h2 className="text-[clamp(2.1rem,4.2vw,3.5rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-ink">
               <span className="block">Premium quality.</span> <span className="block text-muted-on-light">Guaranteed.</span>
@@ -104,7 +125,7 @@ export function Quality({ variant = 'print' }: { variant?: keyof typeof COPY }) 
           </Reveal>
           <Reveal delay={0.08} className="md:col-span-5">
             <p className="mb-6 max-w-[34rem] text-base leading-relaxed text-muted-on-light">{copy.lede}</p>
-            {variant === 'merch' ? (
+            {drop ? (
               <a href={APPLY_URL} className={button.ink}>
                 Apply to sell →
               </a>
@@ -120,18 +141,18 @@ export function Quality({ variant = 'print' }: { variant?: keyof typeof COPY }) 
             <div
               className={clsx(
                 'relative h-full min-h-[26rem] overflow-hidden rounded-[2rem] md:min-h-[36rem]',
-                // Creators gets the capsule pattern behind the phone; print keeps the plain card.
-                variant === 'merch' ? 'bg-teal text-ink/70' : 'bg-white',
+                // Drops get the capsule pattern behind the phone; print keeps the plain card.
+                drop ? 'bg-teal text-ink/70' : 'bg-white',
               )}
             >
-              {variant === 'merch' && <PillPattern />}
+              {drop && <PillPattern />}
               {/* The phone's bottom corner sits in the card and the rest runs off
                   the top and the right, so the device reads as a real object the
                   card is cropping rather than a picture of a phone. */}
               <div aria-hidden="true" className="absolute right-[-12%] bottom-12 md:right-[-18%] md:bottom-14">
                 <div className="origin-bottom scale-[1.25] md:scale-[1.55]">
                   <Handset>
-                    {variant === 'merch' ? <DropScreen /> : <PhoneScreen progress={settled} />}
+                    {drop ? <DropScreen variant={variant} /> : <PhoneScreen progress={settled} />}
                   </Handset>
                 </div>
               </div>
@@ -140,7 +161,7 @@ export function Quality({ variant = 'print' }: { variant?: keyof typeof COPY }) 
                   read as app UI. */}
               <Stamp
                 text="Quality guaranteed ·"
-                disc={variant === 'merch' ? 'fill-amber' : undefined}
+                disc={drop ? 'fill-amber' : undefined}
                 className="absolute bottom-16 left-5 size-32 md:bottom-20 md:left-8 md:size-40"
               />
             </div>

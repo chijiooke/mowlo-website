@@ -170,7 +170,7 @@ function WaitlistModal({ open, onClose, source }: { open: boolean; onClose: () =
               Be the first to know.
             </h2>
             <p className="wl-intro">
-              Join our waitlist and we&apos;ll message you the day the app drops — nothing else, ever.
+              Join our waitlist and we&apos;ll message you the day the app drops. Nothing else, ever.
             </p>
 
             <WaitlistForm source={source} />

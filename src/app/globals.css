@@ -59,8 +59,8 @@
 @theme inline {
   --font-display: var(--font-bricolage), 'Bricolage Grotesque', sans-serif;
   --font-body: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
-  /* Accent only: a word or two of script inside a sans headline. */
-  --font-accent: var(--font-dancing-script), 'Dancing Script', cursive;
+  /* Accent only: a word or two of script inside a section headline (not the hero). */
+  --font-accent: var(--font-satisfy), 'Satisfy', cursive;
 }
 
 /* Bricolage is loaded variable: the width axis gives the poster look without
@@ -120,7 +120,12 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  padding-inline-end: 0.12em;
+  /* Script and italic overhang the box at both ends, above and below; the
+     fill must reach them, without moving the text. */
+  padding-inline: 0.12em;
+  margin-inline-start: -0.12em;
+  padding-block: 0.2em 0.22em;
+  margin-block: -0.2em -0.22em;
   animation: metal-sheen 3.4s cubic-bezier(0.5, 0, 0.35, 1) infinite;
 }
 /* The same sweep over flat amber: a shimmer without the brushed-metal ramp. */
@@ -134,7 +139,12 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  padding-inline-end: 0.12em;
+  /* Script and italic overhang the box at both ends, above and below; the
+     fill must reach them, without moving the text. */
+  padding-inline: 0.12em;
+  margin-inline-start: -0.12em;
+  padding-block: 0.2em 0.22em;
+  margin-block: -0.2em -0.22em;
   animation: metal-sheen 3.4s cubic-bezier(0.5, 0, 0.35, 1) infinite;
 }
 @keyframes metal-sheen {
@@ -452,7 +462,7 @@ nav {
 }
 .pack-btn:hover { filter: brightness(1.12); }
 
-/* Outline pill button — the gallery's "load more". */
+/* Outline pill button. */
 .cs-waitlist {
   padding: 8px 18px; border-radius: 100px; border: 1px solid var(--amber);
   background: transparent; color: var(--amber); font-family: var(--body); font-size: 13px;
@@ -545,90 +555,6 @@ nav {
 .wl-err { border-color: var(--pink) !important; }
 .wl-msg { font-size: 13px; }
 .wl-msg p { justify-content: center; }
-
-/* ── Gallery ────────────────────────────────────────────────────────────── */
-.gal-head { padding: 130px 6% 52px; max-width: 1200px; margin: 0 auto; }
-.gal-title {
-  font-family: var(--display); font-size: clamp(48px, 10vw, 132px); font-weight: 800;
-  letter-spacing: -0.05em; line-height: 0.9; color: var(--text); margin-bottom: 20px;
-}
-.gal-title span { color: var(--amber); }
-.gal-sub { font-size: clamp(16px, 1.8vw, 19px); color: var(--muted); line-height: 1.7; max-width: 540px; }
-
-.gal-wrap { padding: 0 6% 40px; max-width: 1200px; margin: 0 auto; }
-.gal-cols { display: flex; gap: 14px; align-items: flex-start; }
-.gal-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
-
-.gal-card {
-  position: relative; width: 100%; display: block; padding: 0;
-  border-radius: 20px; overflow: hidden;
-  background: var(--ink2); border: 1px solid var(--border);
-  font: inherit; text-align: left; cursor: pointer;
-  transition: border-color .25s, transform .25s, box-shadow .25s;
-}
-.gal-card:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-4px); box-shadow: 0 26px 54px rgba(0, 0, 0, 0.45); }
-.gal-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s cubic-bezier(.16, 1, .3, 1); }
-.gal-card:hover img { transform: scale(1.06); }
-.gal-scrim {
-  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 16px; gap: 4px;
-  background: linear-gradient(to top, rgba(10, 10, 11, 0.9) 0%, rgba(10, 10, 11, 0.25) 42%, transparent 68%);
-  opacity: 0.92; transition: opacity .25s;
-}
-.gal-card:hover .gal-scrim { opacity: 1; }
-.gal-card-title { font-family: var(--display); font-size: 16px; font-weight: 800; letter-spacing: -0.3px; color: white; line-height: 1.2; }
-.gal-card-artist { font-size: 12px; color: rgba(255, 255, 255, 0.62); }
-.gal-chip {
-  position: absolute; top: 12px; left: 12px;
-  font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 100px; backdrop-filter: blur(10px);
-  background: color-mix(in srgb, var(--pk) 22%, transparent);
-  border: 1px solid color-mix(in srgb, var(--pk) 45%, transparent);
-  color: var(--pk);
-}
-.gal-status { padding: 40px 6% 96px; text-align: center; font-size: 14px; color: var(--muted); }
-.gal-skel { border-radius: 20px; background: var(--ink2); border: 1px solid var(--border); animation: shimmer 1.5s ease-in-out infinite; }
-
-/* Filter pills */
-.gal-filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 6% 28px; max-width: 1200px; margin: 0 auto; }
-.gal-filter {
-  padding: 8px 17px; border-radius: 100px; border: 1px solid var(--border);
-  background: transparent; color: var(--muted); cursor: pointer;
-  font-family: var(--body); font-size: 13px; font-weight: 600; transition: all .2s;
-}
-.gal-filter:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.18); }
-.gal-filter[aria-pressed='true'] { background: var(--amber); border-color: var(--amber); color: var(--ink); }
-
-/* Lightbox */
-.lb {
-  position: fixed; inset: 0; z-index: 300;
-  display: flex; align-items: flex-start; justify-content: center; padding: 24px;
-  background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(10px);
-  overflow-y: auto;
-}
-.lb-panel {
-  /* auto margins centre the panel when it fits and stop it clipping when it doesn't */
-  position: relative; width: 100%; max-width: 640px; margin: auto;
-  background: var(--ink2); border: 1px solid var(--border); border-radius: 26px;
-  overflow: hidden; box-shadow: 0 50px 100px rgba(0, 0, 0, 0.6);
-}
-.lb-close {
-  position: absolute; top: 14px; right: 14px; z-index: 4;
-  width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(10, 10, 11, 0.6); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.14); color: var(--text);
-  transition: background .2s;
-}
-.lb-close:hover { background: rgba(10, 10, 11, 0.85); }
-.lb-image { position: relative; width: 100%; max-height: 60vh; overflow: hidden; background: var(--ink); }
-.lb-image img { object-fit: cover; }
-.lb-meta { padding: 24px 26px 26px; }
-.lb-chip { position: static; display: inline-block; margin-bottom: 12px; }
-.lb-title { font-family: var(--display); font-size: clamp(24px, 4vw, 36px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: var(--text); margin-bottom: 8px; }
-.lb-artist { font-size: 15px; font-weight: 600; color: var(--text); }
-.lb-artist span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 3px; }
-.lb-cta { --pk: var(--amber); --pk-fg: var(--ink); margin-top: 22px; }
 
 /* ── Final CTA ──────────────────────────────────────────────────────────── */
 .final { text-align: center; padding: 120px 6%; position: relative; overflow: hidden; }

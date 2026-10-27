@@ -21,13 +21,12 @@ const COLUMNS: { title: string; links: { href: string; label: string; external?:
       { href: '/print#products', label: 'Business Cards' },
       { href: '/print#products', label: 'Flyers' },
       { href: '/print#packs', label: 'Brand Packs' },
-      { href: '/print#app', label: 'Mowlo app' },
     ],
   },
   {
     title: 'Explore',
     links: [
-      { href: '/gallery', label: "Artist's Corner" },
+      { href: '/artists', label: "Artist's Corner" },
       { href: '/partners', label: 'Print partners' },
       { href: '/partners', label: 'Print your own files' },
     ],
@@ -45,7 +44,7 @@ export function Footer() {
               Mowlo
             </div>
             <p className="fb-tag">
-              Merch drops for creators, print for small businesses — designed, printed and delivered in
+              Merch drops for creators, print for small businesses. Designed, printed and delivered in
               Nigeria and Ghana.
             </p>
           </div>

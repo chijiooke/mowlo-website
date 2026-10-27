@@ -9,6 +9,8 @@ const GROUNDS = {
   ink: 'bg-ink text-bone',
   'ink-2': 'bg-ink-2 text-bone',
   cream: 'bg-cream text-ink',
+  /** Artist's Corner only: a gallery-white page. */
+  white: 'bg-white text-ink',
   amber: 'bg-amber text-ink',
 } as const
 

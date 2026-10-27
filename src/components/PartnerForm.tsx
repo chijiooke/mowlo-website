@@ -134,7 +134,7 @@ export function PartnerForm() {
         <div>
           <label className={labelBase}>
             Equipment available <span className="text-amber-400">*</span>{' '}
-            <span className="font-normal text-[#7A7875] tracking-normal">— select all that apply</span>
+            <span className="font-normal text-[#7A7875] tracking-normal">(select all that apply)</span>
           </label>
           <div className="flex flex-wrap gap-2 mt-1">
             {EQUIPMENT_OPTIONS.map(item => {

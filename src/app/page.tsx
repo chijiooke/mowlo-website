@@ -14,7 +14,6 @@ import { TrustBar } from '@/components/TrustBar'
 import { FinalCTA } from '@/components/FinalCTA'
 import { Footer } from '@/components/Footer'
 import { ImmersiveRoot } from '@/components/three/ImmersiveRoot'
-import { Accent } from '@/components/type/Accent'
 import { APPLY_URL } from '@/lib/links'
 import { SmoothScroll } from '@/lib/scroll/SmoothScroll'
 
@@ -37,11 +36,11 @@ export default function HomePage() {
         variant="merch"
         title={
           <>
-            Drop <Accent>merch</Accent> to your <Accent>audience</Accent>.
+            Drop <span className="text-amber">merch</span> to your <span className="text-amber">audience.</span>
           </>
         }
         showTitle
-        lede="No stock, no money down. You set the timer, your people order, and we print and deliver every piece. Easy."
+        lede="No stock, nothing upfront. You set the timer, your people order, and we print, pack and deliver every piece."
         cta={{ label: 'Apply to sell', href: APPLY_URL }}
         secondary={{ label: 'How drops work', href: '#drops' }}
       />

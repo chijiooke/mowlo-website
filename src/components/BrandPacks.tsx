@@ -82,7 +82,7 @@ export function BrandPacks() {
                 <WaitlistCTA className="pack-btn" label="Download the app →" source="brand-packs" />
 
                 <p className="pack-alt">
-                  Three sizes — the bigger the bundle, the bigger the saving.
+                  Three sizes: the bigger the bundle, the bigger the saving.
                 </p>
               </div>
             </div>

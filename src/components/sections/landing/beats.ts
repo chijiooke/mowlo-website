@@ -12,6 +12,16 @@ export const FILL: Range = [0.06, 0.42]
 /** Word and copy clear before the product parade below takes over. */
 export const WORD_OUT: Range = [0.78, 0.94]
 export const COPY_OUT: Range = [0.8, 0.96]
+/**
+ * Merch only: the copy stays off the first screen and rises in once you
+ * scroll, a part at a time — headline, then lede, then the buttons — each
+ * slice overlapping the next.
+ */
+export const COPY_IN: Range[] = [
+  [0.08, 0.15],
+  [0.13, 0.2],
+  [0.18, 0.25],
+]
 export const CUE_OUT: Range = [0.16, 0.34]
 
 /** Where the landing holds when motion is reduced: filled, lit, copy in place. */

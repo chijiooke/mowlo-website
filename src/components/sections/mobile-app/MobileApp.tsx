@@ -109,7 +109,7 @@ function Pitch() {
         className="mb-7 font-display text-[clamp(2.6rem,5vw,4.5rem)] font-extrabold leading-[1.04] tracking-[-0.04em]"
       />
       <p className="mb-7 max-w-[28rem] text-base leading-relaxed text-muted-on-light md:text-lg">
-        Everything you run on Mowlo — ordering, reordering, tracking — built for the phone you already run your business
+        Everything you run on Mowlo (ordering, reordering, tracking), built for the phone you already run your business
         from.
       </p>
 
@@ -131,7 +131,7 @@ function Pitch() {
       <div className="flex flex-col items-start gap-3">
         <WaitlistCTA className={button.ink} source="mobile-app" label="Download the app →" />
         <p className="max-w-[21rem] text-[13px] leading-snug text-muted-on-light">
-          Android first, iOS right behind it. One message the day it drops — nothing else.
+          Android first, iOS right behind it. One message the day it drops. Nothing else.
         </p>
       </div>
     </div>

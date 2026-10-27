@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Bricolage_Grotesque, DM_Sans, Dancing_Script } from 'next/font/google'
+import { Bricolage_Grotesque, DM_Sans, Satisfy } from 'next/font/google'
 import { WaitlistProvider } from '@/components/WaitlistForm'
 import './globals.css'
 
@@ -19,11 +19,12 @@ const dmSans = DM_Sans({
   display: 'swap',
 })
 
-// The accent face: a flowing script, for the odd word in a headline that
-// should feel written rather than set. Variable: the bold end carries it.
-const dancingScript = Dancing_Script({
+// The accent face: a brush script, for the odd word in a section headline
+// that should feel written rather than set. One weight is all it has.
+const satisfy = Satisfy({
   subsets: ['latin'],
-  variable: '--font-dancing-script',
+  weight: '400',
+  variable: '--font-satisfy',
   display: 'swap',
 })
 
@@ -34,43 +35,44 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: 'Mowlo — Drop merch to your audience.',
+    default: 'Mowlo | Drop merch to your audience',
     template: '%s | Mowlo',
   },
   description:
-    'Creator merch drops with no stock and nothing up front. Pick tees, mugs, stickers and more, set your price and window — when orders close, Mowlo prints and delivers to every buyer in Nigeria & Ghana.',
+    'Merch drops for creators and framed print drops for artists in Nigeria and Ghana. No stock, nothing upfront: set your price and drop duration, your people order, and Mowlo prints, packs and delivers every piece.',
   keywords: [
     'creator merch Nigeria',
     'merch drops',
     'sell merch Nigeria',
-    'print on demand merch Lagos',
     'influencer merch Nigeria',
+    'merch without stock',
+    'print on demand merch Lagos',
     'custom tees Nigeria',
     'creator store Ghana',
-    'merch without stock',
-    'print on demand Nigeria',
-    'small business printing Nigeria',
+    'sell art prints Nigeria',
+    'framed prints Nigeria',
+    'limited edition art prints',
+    'online art shop for artists',
   ],
   authors: [{ name: 'Mowlo' }],
   creator: 'Mowlo',
   publisher: 'Mowlo',
 
-  // TODO(creators): og-image.jpg still shows a print order; swap for a
-  // merch render exported from the landing scene.
+  // og-image.jpg is shot from /dev/og by scripts/og/shoot.sh.
   openGraph: {
     type: 'website',
     url: SITE_URL,
     siteName: 'Mowlo',
-    title: 'Mowlo — Drop merch to your audience.',
+    title: 'Drop merch to your audience | Mowlo',
     description:
-      'No stock. Nothing up front. Set your price and window — when orders close, Mowlo prints and delivers to every buyer.',
+      'No stock, nothing upfront. Set the timer, your people order, and we print, pack and deliver every piece. Merch for creators, framed prints for artists.',
     locale: 'en_NG',
     images: [
       {
         url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: 'A happy small business owner holding her Mowlo print order — branded bags, stickers and flyers.',
+        alt: 'Drop merch to your audience. Mowlo: a creator hugging a basket of bread beside a naira money-bag sticker.',
         type: 'image/jpeg',
       },
     ],
@@ -80,9 +82,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@mowlohq',
     creator: '@mowlohq',
-    title: 'Mowlo — Drop merch to your audience.',
+    title: 'Drop merch to your audience | Mowlo',
     description:
-      'Merch drops for creators in Nigeria & Ghana. No stock, no money down — you set the timer, we print and deliver.',
+      'Merch drops for creators, framed print drops for artists. No stock, nothing upfront. You set the timer; we print, pack and deliver.',
     images: [OG_IMAGE],
   },
 
@@ -112,7 +114,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${dmSans.variable} ${dancingScript.variable}`}>
+    <html lang="en" className={`${bricolage.variable} ${dmSans.variable} ${satisfy.variable}`}>
       <body>
         <WaitlistProvider>{children}</WaitlistProvider>
       </body>

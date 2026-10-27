@@ -112,7 +112,7 @@ swap); decision 2 as recommended (mechanics only, no markup figure).
 - `/` is Creators: Landing (choreographed merch, `MerchScene` + `MERCH_TURNS`: tee eases in and
   fades, cap spins in from the left and off, a water bottle rises, turns and sinks, three stickers (`LandingSticker`: neon with rim type and a rolled peel, worn and crumpled, a scalloped vinyl burst) slap onto
   the word and peel away with it; visible `h1` with
-  *merch* / *audience* in the Dancing Script accent — ink on cream, amber on ink) → DropSteps `#drops` ("You drop it. They
+  *merch* / *audience* as amber and pink highlight tags (`type/Tag`); section headlines keep the Satisfy script accent — ink on cream, amber on ink) → DropSteps `#drops` ("You drop it. They
   cop it. We ship it.", then a pinned in-place sequence: one step at a time, photo wipes, 180vh / 240vh) → Parade (merch: tee, mug, stickers) `#merch` → MerchLine `#range` (the print site's card fan, nine merch cards: tees, hats, crew socks, water bottles, stickers, key holders, cards, mugs, and more) → Quality
   (creators variant: "Premium quality. Guaranteed.", live drop page mock, everything we handle)
   → TrustBar (creators tape) → Earnings `#paid` ("Your clout. Your cut.", Quality-style grid:

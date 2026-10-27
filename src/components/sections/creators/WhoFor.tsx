@@ -33,7 +33,7 @@ const WAYS: WayCard[] = [
   {
     id: 'creators',
     name: 'Creators',
-    body: 'Drop merch to your people in windows — no stock, no money down. Your clout, your cut.',
+    body: 'Drop merch to your people in windows. No stock, nothing upfront. Your clout, your cut.',
     icon: 'lucide:sparkles',
     tint: 'bg-pink text-ink',
     href: APPLY_URL,
@@ -45,10 +45,10 @@ const WAYS: WayCard[] = [
   {
     id: 'artists',
     name: 'Artists',
-    body: 'Sell your art as prints and stickers in Artist’s Corner. Upload once — we print, deliver and pay you.',
+    body: 'Sell your art as prints and stickers in Artist’s Corner. Upload once; we print, deliver and pay you.',
     icon: 'lucide:palette',
     tint: 'bg-purple text-white',
-    href: '/gallery',
+    href: '/artists',
     photo: '/assets/man-working-animation-studio.jpg',
     alt: 'An artist drawing on a pen tablet at his desk',
     focus: 'object-[55%_55%]',

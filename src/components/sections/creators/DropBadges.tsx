@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import { Icon } from '@iconify/react'
 import { motion } from 'framer-motion'
 import { MowloLogo } from '@/components/MowloLogo'
-import { PillPattern } from '@/components/ui/PillPattern'
+import { HeartPattern } from '@/components/ui/HeartPattern'
 import { useReduce } from '@/lib/motion'
 
 /** Mowlo and the merch, as two overlapping badges: the brand and what it makes for you. */
@@ -14,7 +14,7 @@ const BADGES = [
 ]
 
 /**
- * The closing panel: a purple capsule pattern with two badges overlapping in
+ * The closing panel: a purple heart pattern with two badges overlapping in
  * the middle. The badges pop in one after the other, then breathe.
  */
 export function DropBadges() {
@@ -22,7 +22,7 @@ export function DropBadges() {
 
   return (
     <div className="relative mx-auto mb-14 aspect-[4/3] w-full max-w-[1100px] overflow-hidden rounded-[2rem] bg-purple text-ink/70 sm:aspect-[16/7] md:mb-20">
-      <PillPattern size={120} />
+      <HeartPattern size={150} />
       <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
         {BADGES.map((badge, i) => (
           <motion.span

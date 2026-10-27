@@ -98,7 +98,7 @@ export function ProductsSection({
         <p className="sec-sub">
           {sub ?? (
             <>
-              Designed, printed and delivered — for every hustle in Nigeria{' '}
+              Designed, printed and delivered for every hustle in Nigeria{' '}
               <Icon icon="circle-flags:ng" className="sub-flag" aria-hidden="true" /> and Ghana{' '}
               <Icon icon="circle-flags:gh" className="sub-flag" aria-hidden="true" />.
             </>
