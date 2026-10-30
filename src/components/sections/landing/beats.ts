@@ -9,9 +9,12 @@ export type Range = [number, number]
 
 /** The brand name fills with amber as you scroll. */
 export const FILL: Range = [0.06, 0.42]
-/** Word and copy clear before the product parade below takes over. */
+/**
+ * Word and copy clear before the product parade below takes over. The copy
+ * outlasts the word, holding until the very end of the pin.
+ */
 export const WORD_OUT: Range = [0.78, 0.94]
-export const COPY_OUT: Range = [0.8, 0.96]
+export const COPY_OUT: Range = [0.9, 0.99]
 /**
  * Merch only: the copy stays off the first screen and rises in once you
  * scroll, a part at a time — headline, then lede, then the buttons — each
