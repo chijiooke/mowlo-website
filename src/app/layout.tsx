@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, DM_Sans, Satisfy } from 'next/font/google'
+import { TawkChat } from '@/components/TawkChat'
 import { WaitlistProvider } from '@/components/WaitlistForm'
 import './globals.css'
 
@@ -117,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${bricolage.variable} ${dmSans.variable} ${satisfy.variable}`}>
       <body>
         <WaitlistProvider>{children}</WaitlistProvider>
+        <TawkChat />
       </body>
     </html>
   )
