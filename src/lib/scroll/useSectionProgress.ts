@@ -1,20 +1,28 @@
 'use client'
 
 import type { RefObject } from 'react'
-import { useScroll, type MotionValue } from 'framer-motion'
+import { useScroll, useSpring, type MotionValue } from 'framer-motion'
 
 /**
  * Progress through a pinned track, 0 → 1: 0 when the track's top reaches the
  * top of the viewport, 1 when its bottom reaches the bottom. Pair it with a
  * `sticky top-0 h-svh` frame inside a tall track.
  *
+ * The raw scroll position arrives in steps (a wheel notch, a touch fling's
+ * frames), and everything pinned to it stepped with it. It runs through a
+ * critically damped spring instead, so scenes glide after the page: tight
+ * enough to feel attached to the finger, loose enough to round off each step.
+ *
  * Read it with `.get()` inside `useFrame`, or map it with `useTransform` —
  * never copy it into React state.
  */
 export function useSectionProgress(track: RefObject<HTMLElement | null>): MotionValue<number> {
   const { scrollYProgress } = useScroll({ target: track, offset: ['start start', 'end end'] })
-  return scrollYProgress
+  return useSpring(scrollYProgress, SCROLL_SMOOTHING)
 }
+
+/** ζ ≈ 1 (no overshoot past a beat's edge), settling in roughly a quarter second. */
+const SCROLL_SMOOTHING = { stiffness: 170, damping: 26, mass: 1, restDelta: 0.0005 }
 
 /** Local 0 → 1 progress of a beat that runs from `start` to `end`. */
 export const beat = (p: number, start: number, end: number) =>

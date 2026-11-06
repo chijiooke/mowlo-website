@@ -14,7 +14,7 @@ import { useWaitlist } from '@/components/WaitlistForm'
 import { useReduce } from '@/lib/motion'
 import { track, useSectionProgress } from '@/lib/scroll/useSectionProgress'
 import { useMediaQuery } from '@/lib/useMediaQuery'
-import { COPY_IN, COPY_OUT, CUE_OUT, FILL, LANDING_STILL, WORD_OUT, type LandingVariant } from './beats'
+import { COPY_IN, COPY_OUT, CUE_OUT, CUE_OUT_COMPACT, FILL, LANDING_STILL, WORD_OUT, type LandingVariant } from './beats'
 
 // Keeps three.js out of the page bundle; it arrives with the canvas.
 const LandingScene = dynamic(() => import('./LandingScene'), { ssr: false })
@@ -77,7 +77,7 @@ export function Landing({ variant, title, showTitle = false, lede, cta, secondar
   const copyY = useTransform(progress, ...track(COPY_OUT, [0, -28]))
   // Hidden, not just transparent, so a faded CTA cannot take keyboard focus.
   const copyVisibility = useTransform(progress, v => (v < COPY_OUT[1] ? 'visible' : 'hidden'))
-  const cue = useTransform(progress, ...track(CUE_OUT, [1, 0]))
+  const cue = useTransform(progress, ...track(compact ? CUE_OUT_COMPACT : CUE_OUT, [1, 0]))
 
   return (
     <Chapter ground="ink" ref={trackRef} className={clsx(TRACK[variant], 'motion-reduce:h-svh')}>
@@ -142,11 +142,11 @@ export function Landing({ variant, title, showTitle = false, lede, cta, secondar
         <motion.div
           style={{ opacity: cue }}
           aria-hidden="true"
-          className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 text-eyebrow text-bone/50 uppercase motion-reduce:hidden lg:flex"
+          className="absolute bottom-[max(1.75rem,env(safe-area-inset-bottom))] left-1/2 flex -translate-x-1/2 flex-col items-center gap-3 text-eyebrow text-bone/60 uppercase motion-reduce:hidden md:bottom-10 md:text-bone/50"
         >
           Scroll
           <span className="h-10 w-px overflow-hidden bg-bone/15">
-            <span className="block h-1/2 w-full animate-[scroll-cue_1.6s_var(--ease-in-out-quart)_infinite] bg-amber" />
+            <span className="block h-1/2 w-full animate-[scroll-cue_2.2s_var(--ease-in-out-sine)_infinite] bg-amber" />
           </span>
         </motion.div>
       </div>

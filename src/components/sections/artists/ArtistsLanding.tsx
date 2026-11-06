@@ -132,7 +132,7 @@ export function ArtistsLanding() {
       >
         Scroll
         <span className="h-10 w-px overflow-hidden bg-ink/15">
-          <span className="block h-1/2 w-full animate-[scroll-cue_1.6s_var(--ease-in-out-quart)_infinite] bg-ink" />
+          <span className="block h-1/2 w-full animate-[scroll-cue_2.2s_var(--ease-in-out-sine)_infinite] bg-ink" />
         </span>
       </motion.div>
 

@@ -26,6 +26,11 @@ export const COPY_IN: Range[] = [
   [0.18, 0.25],
 ]
 export const CUE_OUT: Range = [0.16, 0.34]
+/**
+ * Phones: the cue sits where the copy rises in, so it is gone before the
+ * headline starts (COPY_IN[0]).
+ */
+export const CUE_OUT_COMPACT: Range = [0.01, 0.07]
 
 /** Where the landing holds when motion is reduced: filled, lit, copy in place. */
 export const LANDING_STILL = 0.55
